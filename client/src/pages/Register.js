@@ -1,67 +1,167 @@
-import React from 'react'
-import { FormRow } from '../components';
-import SideImage from '../assets/images/shopping.jpg'
+import React, { useState } from 'react'
+import { FormRow, RadioCard } from '../components';
+
 import {
     Button,
     Checkbox,
     Flex,
-    FormControl,
-    FormLabel,
     Heading,
-    Input,
     Link,
     Stack,
-    Image,
-    Box,
     Card,
     CardBody,
+    Text,
+    useRadioGroup,
 } from '@chakra-ui/react';
+import { useAppContext } from '../context/appContext';
+
+const initialState = {
+    email: '',
+    password: '',
+    role: 'customer',
+    rememberMe: true,
+}
 
 function Register() {
+
+    const { displayAlert, roleOptions, loginUser, isLoading } = useAppContext();
+
+    const [values, setValues] = useState(initialState)
+
+    const handleInputChange = (e) => {
+
+        if (e == 'customer' || e == 'vendor') {
+            setValues({ ...values, role: e });
+            return
+        }
+
+        if (e.target.name == 'checkbox') {
+            setValues({ ...values, rememberMe: e.target.checked })
+
+        } else {
+
+            setValues({ ...values, [e.target.name]: e.target.value });
+        }
+
+    }
+
+    const handleSubmit = () => {
+
+        const { email, password, role, rememberMe } = values;
+
+        if (!email || !password) {
+            displayAlert({
+                alertText: 'Provide all fields.',
+                alertStatus: 'error'
+            })
+            return
+        }
+
+        loginUser({
+            currentUser: { email, password, role, rememberMe }
+        })
+
+        console.log('submit');
+
+
+    }
+
+    const { getRootProps, getRadioProps } = useRadioGroup({
+        name: 'role',
+        defaultValue: roleOptions[0],
+        onChange: handleInputChange,
+    })
+
+    const group = getRootProps()
+
     return (
-        <Flex flex={1} p={8} align={'center'} justify={'center'}>
-            <Card padding={12}
-                className='_card_elevated'
-            >
-                <CardBody>
-                    <Stack spacing={4} w='full' maxW='md'>
-                        <Heading fontSize={'2xl'}>
-                            Sign in to your account
-                        </Heading>
+        <Stack
+            bg={'brand_background.light'}
+            minH={'100vh'}
+        >
 
-                        <FormRow name='email' type='email' label='email address' handleChange={handleInputChange} />
+            <Flex flex={1} p={8} align={'center'} justify={'center'}>
+                <Card padding={12}
+                    className='_card_elevated'
+                    borderTop='4px'
+                    borderColor='brand_primary.400'
+                >
+                    <CardBody>
+                        <Stack spacing={4} w='full' maxW='md'>
+                            <Heading fontSize={'2xl'}>
+                                Sign in to your account
+                            </Heading>
 
-                        <FormRow name='password' type='password' handleChange={handleInputChange} />
+                            <FormRow
+                                name='email'
+                                type='text'
+                                label='email address'
+                                handleChange={handleInputChange}
+                                handleSubmit={handleSubmit}
+                            />
 
-                        <Stack spacing={6}>
-                            <Stack
-                                direction={{ base: 'column', sm: 'row' }}
-                                justify={'space-between'}
-                                align='start'
-                            >
+                            <FormRow
+                                name='password'
+                                type='password'
+                                handleChange={handleInputChange}
+                                handleSubmit={handleSubmit}
+                            />
 
-                                <Checkbox
-                                    name='checkbox'
-                                    type='checkbox'
-                                    onChange={handleInputChange}
-                                    colorScheme='brand_primary'
-                                >
-                                    Remember Me
-                                </Checkbox>
-
-                                <Link color={'brand_primary.500'}>Forgot Password?</Link>
-
+                            <Stack {...group}>
+                                {roleOptions.map((value) => {
+                                    const radio = getRadioProps({ value })
+                                    return (
+                                        <RadioCard key={value} {...radio}>
+                                            {value}
+                                        </RadioCard>
+                                    )
+                                })}
                             </Stack>
 
-                            <Button colorScheme='brand_primary' variant='solid'>
-                                Sign in
-                            </Button>
-                        </Stack>
+                            <Stack spacing={6}>
+                                <Stack
+                                    direction={{ base: 'column', sm: 'row' }}
+                                    justify={'space-between'}
+                                    align='start'
+                                >
 
-                    </Stack>
-                </CardBody>
-            </Card>
-        </Flex >
+                                    <Checkbox
+                                        name='checkbox'
+                                        type='checkbox'
+                                        onChange={handleInputChange}
+                                        colorScheme='brand_primary'
+                                        defaultChecked={values.rememberMe}
+                                    >
+                                        Remember Me
+                                    </Checkbox>
+
+                                    <Link color={'brand_primary.500'}>Forgot Password?</Link>
+
+                                </Stack>
+
+                                <Button
+                                    isDisabled={isLoading}
+                                    colorScheme='brand_primary' variant={isLoading ? 'outline' : 'solid'}
+                                    onClick={handleSubmit}
+                                    onKeyDown={(key) => {
+                                        console.log(key);
+                                    }}>
+                                    Sign in
+                                </Button>
+                                <Text
+                                    align={'end'}
+                                >New User?&nbsp;
+                                    <Link color='brand_primary.500'>
+                                        Signup
+                                    </Link>
+                                </Text>
+                            </Stack>
+
+                        </Stack>
+                    </CardBody>
+                </Card>
+            </Flex >
+        </Stack>
     )
 }
 

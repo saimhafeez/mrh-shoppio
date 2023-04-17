@@ -1,0 +1,7 @@
+export const SHOW_ALERT = 'SHOW_ALERT'
+export const CLEAR_ALERT = 'CLEAR_ALERT'
+
+// Login Actions
+export const USER_LOGIN_BEGIN = 'USER_LOGIN_BEGIN'
+export const USER_LOGIN_SUCCESS = 'USER_LOGIN_SUCCESS'
+export const USER_LOGIN_ERROR = 'USER_LOGIN_ERROR'

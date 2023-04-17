@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
+import { AppProvider, useAppContext } from './context/appContext';
+
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 
 const brand_theme = extendTheme({
@@ -20,20 +22,23 @@ const brand_theme = extendTheme({
       900: "#05264c",
     },
     brand_background: {
-      white: "#f0f4f8"
+      light: "#f0f4f8"
     },
     brand_text: {
       light: "#486581",
-      dark: "#102a43"
+      dark: "#102a43",
+      white: "#f0f4f8"
     }
   }
 })
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ChakraProvider theme={brand_theme}>
-    <React.StrictMode>
+    {/* <React.StrictMode>
+      
+    </React.StrictMode> */}
+    <AppProvider>
       <App />
-    </React.StrictMode>
+    </AppProvider>
   </ChakraProvider>
 );

@@ -18,21 +18,12 @@ import {
     Text,
 } from '@chakra-ui/react';
 
-const handleInputChange = (e) => {
-    if (e.target.name == 'checkbox') {
-        console.log(e.target.name, e.target.checked);
-        return
-    }
-    console.log(e.target.name, e.target.value);
-
-}
-
 function Landing() {
 
 
     return (
         <Stack
-            bgColor='brand_background.white'
+            bgColor='brand_background.light'
         >
             <Stack
                 minH={'100vh'}

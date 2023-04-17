@@ -1,3 +1,10 @@
 import Landing from "./Landing";
+import ProtectedRoute from "./ProtectedRoute";
+import Register from "./Register";
 
-export { Landing }
+
+export {
+    Landing,
+    ProtectedRoute,
+    Register,
+}
