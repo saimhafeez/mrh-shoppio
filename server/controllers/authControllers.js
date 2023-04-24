@@ -6,7 +6,9 @@ const register = async (req, res) => {
 
     console.log('register call in authController', req.body);
 
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, rememberMe } = req.body;
+
+    console.log('remMe :: authController', rememberMe);
 
     if (!name || !email || !password) {
         throw new BadRequestError('please provide all required values')
@@ -14,7 +16,7 @@ const register = async (req, res) => {
 
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
-        throw new BadRequestError('Email already registered')
+        throw new BadRequestError('Email already registered');
     }
 
     const user = await User.create({ name, email, password, role });
@@ -27,12 +29,13 @@ const register = async (req, res) => {
             email: user.email,
             role: user.role,
         },
-        token
+        token,
+        rememberMe
     });
 }
 
 const login = async (req, res) => {
-    const { email, password, role } = req.body;
+    const { email, password, role, rememberMe } = req.body;
 
     if (!email || !password) {
         throw new BadRequestError('Please Provide all values')
@@ -55,7 +58,7 @@ const login = async (req, res) => {
     const token = user.createJWT();
 
     user.password = undefined;
-    res.status(StatusCodes.OK).json({ user, token })
+    res.status(StatusCodes.OK).json({ user, token, rememberMe })
 }
 
 export { register, login }

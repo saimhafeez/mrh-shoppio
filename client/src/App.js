@@ -1,15 +1,16 @@
 import { AlertToast } from "./components";
 import { useAppContext } from "./context/appContext";
 import { Landing, ProtectedRoute, Register } from "./pages";
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { SharedLayout, Stats, Products } from "./pages/vendor/dashboard";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { SharedLayout, Stats, Products, Orders } from "./pages/vendor/dashboard";
+import { Box } from "@chakra-ui/react";
 
 function App() {
 
   const { showAlert } = useAppContext();
 
   return (
-    <>
+    <Box bg={'brand_background.light'} minH={'100vh'}>
       <BrowserRouter>
 
         <Routes>
@@ -22,9 +23,15 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/vendor" element={<SharedLayout />}>
+          {/* <Route path="/vendor" element={<Navigate to={'/vendor/stats'} />} /> */}
+
+          <Route path="/vendor" element={<ProtectedRoute>
+            <SharedLayout />
+          </ProtectedRoute>}>
             <Route index element={<Stats />} />
             <Route path='products' element={<Products />} />
+            <Route path='orders' element={<Orders />} />
+            <Route path='profile' element={<>Profile</>} />
           </Route>
 
           <Route path="/register" element={<Register />} />
@@ -34,7 +41,7 @@ function App() {
       </BrowserRouter>
 
       {showAlert && <AlertToast />}
-    </>
+    </Box>
 
   );
 }

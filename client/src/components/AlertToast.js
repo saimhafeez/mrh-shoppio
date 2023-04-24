@@ -8,12 +8,13 @@ function AlertToast() {
 
     const { showAlert, clearAlert, alertStatus, alertText } = useAppContext();
 
-    const id = `${alertStatus}_toast`
+    // const id = `${alertStatus}_toast`
 
     useEffect(() => {
-        if (showAlert && alertStatus != '' && !toast.isActive(id)) {
+        // if (showAlert && alertStatus != '' && !toast.isActive(id)) {
+        if (showAlert && alertStatus != '') {
             toast({
-                id,
+                // id,
                 description: alertText,
                 status: alertStatus,
                 duration: 3000,

@@ -3,6 +3,9 @@ import Logo from "./Logo";
 import AlertToast from "./AlertToast";
 import RadioCard from "./RadioCard";
 import Header from "./Header";
+import Sidebar from "./Sidebar";
+import CustomBadge from "./CustomBadge";
+import LazyImage from "./LazyImage";
 
 export {
     FormRow,
@@ -10,4 +13,7 @@ export {
     AlertToast,
     RadioCard,
     Header,
+    Sidebar,
+    CustomBadge,
+    LazyImage,
 }

@@ -5,7 +5,17 @@ import 'express-async-errors' // passes the errors to the middleware without the
 
 // routers
 import authRoutes from './routers/authRoutes.js'
+import vendorRoutes from './routers/vendorRoutes.js'
+
+// Middlewares
 import errorHandlerMiddleware from "./middleware/error-handler.js";
+import authenticateUser from './middleware/auth.js'
+
+
+// import Product from "./models/Product.js";
+// const ProductEventEmitter = Product.watch()
+// ProductEventEmitter.on('change', change => console.log('change in database', JSON.stringify(change)))
+
 
 const app = express();
 dotenv.config()
@@ -25,6 +35,8 @@ app.get('/api/v1', (req, res) => {
 
 
 app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/vendor', authenticateUser, vendorRoutes);
+// app.use('/api/v1/vendor', vendorRoutes);
 
 
 app.use(errorHandlerMiddleware)

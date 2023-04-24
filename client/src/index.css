@@ -24,6 +24,45 @@ code {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
+/* NAV LINK - SIDEBAR */
+
+.nav-link>div {
+  background-color: transparent;
+  font-weight: bold;
+  color: #a0aec0;
+  transition: 0.3s;
+}
+
+.active>div {
+  background-color: var(--chakra-colors-brand_background-white);
+  color: #1f2733;
+}
+
+.nav-link .icon {
+  color: var(--chakra-colors-brand_primary-500);
+  background-color: white;
+  border-radius: 15px;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+
+.active .icon {
+  color: white;
+  background-color: var(--chakra-colors-brand_primary-500);
+  ;
+}
+
+.fileNameBadge {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 1;
+  /* adjust to the number of lines you want to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 :root {
 
   /* colors */
@@ -48,6 +87,17 @@ code {
   --primary-700: #103d87;
   --primary-800: #0b3066;
   --primary-900: #05264c;
+
+  --secondary-50: #ffe0ea;
+  --secondary-100: #ffc8d3;
+  --secondary-200: #ff9fb0;
+  --secondary-300: #ff7790;
+  --secondary-400: #ff4e77;
+  --secondary-500: #ff1179;
+  --secondary-600: #d8005f;
+  --secondary-700: #b4004a;
+  --secondary-800: #910035;
+  --secondary-900: #750026;
 
   /* grey */
   --grey-50: #f0f4f8;

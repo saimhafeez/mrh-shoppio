@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormRow, RadioCard } from '../components';
 
 import {
@@ -14,6 +14,7 @@ import {
     useRadioGroup,
 } from '@chakra-ui/react';
 import { useAppContext } from '../context/appContext';
+import { useNavigate } from 'react-router-dom';
 
 const initialState = {
     email: '',
@@ -24,9 +25,11 @@ const initialState = {
 
 function Register() {
 
-    const { displayAlert, roleOptions, loginUser, isLoading } = useAppContext();
+    const { user, displayAlert, roleOptions, loginUser, isLoading } = useAppContext();
 
     const [values, setValues] = useState(initialState)
+
+    const navigate = useNavigate()
 
     const handleInputChange = (e) => {
 
@@ -74,12 +77,17 @@ function Register() {
 
     const group = getRootProps()
 
-    return (
-        <Stack
-            bg={'brand_background.light'}
-            minH={'100vh'}
-        >
 
+    useEffect(() => {
+        if (user) {
+            if (user.role == 'vendor') {
+                navigate('/vendor')
+            }
+        }
+    }, [user, navigate])
+
+    return (
+        <Stack minH={'100vh'}>
             <Flex flex={1} p={8} align={'center'} justify={'center'}>
                 <Card padding={12}
                     className='_card_elevated'
@@ -140,7 +148,7 @@ function Register() {
                                 </Stack>
 
                                 <Button
-                                    isDisabled={isLoading}
+                                    isLoading={isLoading}
                                     colorScheme='brand_primary' variant={isLoading ? 'outline' : 'solid'}
                                     onClick={handleSubmit}
                                     onKeyDown={(key) => {

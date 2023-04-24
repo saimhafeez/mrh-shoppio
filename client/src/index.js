@@ -21,8 +21,22 @@ const brand_theme = extendTheme({
       800: "#0b3066",
       900: "#05264c",
     },
+    brand_secondary: {
+      50: "#ffe0ea",
+      100: "#ffc8d3",
+      200: "#ff9fb0",
+      300: "#ff7790",
+      400: "#ff4e77",
+      500: "#ff1179",
+      600: "#d8005f",
+      700: "#b4004a",
+      800: "#910035",
+      900: "#750026",
+    },
     brand_background: {
-      light: "#f0f4f8"
+      light: "#f7fafc",
+      // light: "#f0f4f8",
+      white: "#ffffff"
     },
     brand_text: {
       light: "#486581",
