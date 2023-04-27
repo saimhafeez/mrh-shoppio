@@ -4,6 +4,8 @@ import { Landing, ProtectedRoute, Register } from "./pages";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SharedLayout, Stats, Products, Orders } from "./pages/vendor/dashboard";
 import { Box } from "@chakra-ui/react";
+import { Home, Shop } from "./pages/site";
+
 
 function App() {
 
@@ -12,8 +14,10 @@ function App() {
   return (
     <Box bg={'brand_background.light'} minH={'100vh'}>
       <BrowserRouter>
-
         <Routes>
+
+          <Route path="/home" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
 
           <Route path="/landing" element={<Landing />} />
 

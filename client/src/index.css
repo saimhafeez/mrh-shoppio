@@ -62,6 +62,12 @@ code {
   text-overflow: ellipsis;
 }
 
+.verital_writing_mode {
+  /* transform: rotate(-90deg) */
+  writing-mode: vertical-lr !important;
+  text-orientation: upright !important;
+}
+
 
 :root {
 

@@ -208,6 +208,56 @@ const AppProvider = (({ children }) => {
 
     }
 
+    const getCategories = async () => {
+
+        try {
+
+            const { data } = await axios.get('/api/v1/site/categories')
+
+            const { categories } = await data;
+
+            return { categories };
+
+        } catch (error) {
+            console.log('error in getCategories', error)
+        }
+    }
+
+    const getTags = async () => {
+
+        try {
+
+            const { data } = await axios.get('/api/v1/site/tags')
+
+            const { tags } = await data;
+
+            return { tags };
+
+        } catch (error) {
+            console.log('error in getTags', error)
+        }
+    }
+
+    const getAllProducts = async (query) => {
+        try {
+
+            const { data } = await axios.get(`/api/v1/site/shop/${query}`)
+
+            const {
+
+                products,
+                totalProducts,
+                numOfPages
+
+            } = await data;
+
+            return { products, totalProducts, numOfPages };
+
+        } catch (error) {
+            console.log('error in getAllProducts', error)
+        }
+    }
+
     return <AppContext.Provider value={{
         ...state,
         displayAlert,
@@ -217,6 +267,9 @@ const AppProvider = (({ children }) => {
         createProduct,
         uploadImagesToServer,
         getProducts,
+        getCategories,
+        getTags,
+        getAllProducts
     }}>
         {children}
     </AppContext.Provider>

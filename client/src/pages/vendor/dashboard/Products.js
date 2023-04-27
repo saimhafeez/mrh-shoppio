@@ -86,7 +86,7 @@ function Products() {
                                         <Td>
                                             <LazyImage
                                                 key={index}
-                                                src={product.images.split(',')[0]}
+                                                src={product.images[0]}
                                                 minW={'100px'}
                                                 maxW={'100px'}
                                                 h={'60px'}
@@ -104,7 +104,7 @@ function Products() {
                                         <Td>
                                             {
                                                 <Wrap>
-                                                    {product.categories.split(',').map((category, catindex) => {
+                                                    {product.categories.map((category, catindex) => {
                                                         return <Kbd
                                                             width={'fit-content'}
                                                             key={catindex}
@@ -116,7 +116,7 @@ function Products() {
                                         <Td>
                                             {
                                                 <Wrap>
-                                                    {product.tags.split(',').map((tag, tagIndex) => {
+                                                    {product.tags.map((tag, tagIndex) => {
                                                         return <Kbd
                                                             width={'fit-content'}
                                                             key={tagIndex}

@@ -215,11 +215,19 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
         createProduct({
             name,
             description,
-            images: links.join(','),
+            images: links,
             price,
-            categories: categories.join(','),
-            tags: tags.join(','),
+            categories,
+            tags,
         });
+        // createProduct({
+        //     name,
+        //     description,
+        //     images: links.join(','),
+        //     price,
+        //     categories: categories.join(','),
+        //     tags: tags.join(','),
+        // });
 
         onClose()
         clearFields()

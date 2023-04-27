@@ -16,20 +16,20 @@ const ProductSchema = new mongoose.Schema({
         required: [true, 'Please Provide Product Price'],
         trim: true
     },
-    images: {
+    images: [{
         type: String,
         required: [true, 'Please Provide Product Images']
-    },
-    categories: {
+    }],
+    categories: [{
         type: String,
         required: [true, 'Please Provide atleast one Product Category'],
         trim: true
-    },
-    tags: {
+    }],
+    tags: [{
         type: String,
         required: [true, 'Please Provide atleast one Product Tag'],
         trim: true
-    },
+    }],
     vendorId: {
         type: mongoose.Types.ObjectId,
         ref: 'User',

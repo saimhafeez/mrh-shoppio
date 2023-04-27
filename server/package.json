@@ -5,13 +5,17 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon server",
+    "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "start-server": "nodemon server",
+    "server": "nodemon server --ignore client",
+    "client": "cd.. & npm start --prefix client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "concurrently": "^8.0.1",
     "nodemon": "^2.0.22"
   },
   "dependencies": {
