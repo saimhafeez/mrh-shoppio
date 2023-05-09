@@ -4,7 +4,7 @@ import { Landing, ProtectedRoute, Register } from "./pages";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SharedLayout, Stats, Products, Orders } from "./pages/vendor/dashboard";
 import { Box } from "@chakra-ui/react";
-import { Home, Shop } from "./pages/site";
+import { Home, ProductDetail, Shop, SiteSharedLayout } from "./pages/site";
 
 
 function App() {
@@ -17,7 +17,13 @@ function App() {
         <Routes>
 
           <Route path="/home" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
+          <Route path="/shop" element={<SiteSharedLayout />}
+          >
+            <Route index element={<Shop />} />
+            <Route path=":id" element={<ProductDetail />} />
+
+          </Route>
+
 
           <Route path="/landing" element={<Landing />} />
 
@@ -45,7 +51,7 @@ function App() {
       </BrowserRouter>
 
       {showAlert && <AlertToast />}
-    </Box>
+    </Box >
 
   );
 }

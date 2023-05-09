@@ -1,5 +1,8 @@
 import Product from "../models/Product.js";
 import { StatusCodes } from "http-status-codes";
+import NotFoundError from "../errors/not-found.js";
+import ProductReview from "../models/ProductReview.js";
+import User from "../models/User.js";
 
 
 const getProducts = async (req, res) => {
@@ -157,6 +160,23 @@ const getProducts = async (req, res) => {
 
 }
 
+const getSingleProduct = async (req, res) => {
+
+    console.log(req.params)
+
+    const { id: productID } = req.params
+
+    const product = await Product.findOne({ _id: productID });
+
+    if (!product) {
+        throw new NotFoundError(`No product with id: ${productID}`);
+    }
+
+    res.status(StatusCodes.OK).json({
+        product: product._doc
+    })
+}
+
 
 const getCategories = async (req, res) => {
 
@@ -172,7 +192,7 @@ const getCategories = async (req, res) => {
             }
         },
         {
-            $sort: { count: -1 }
+            $sort: { _id: 1 }
         }
     ])
 
@@ -195,7 +215,7 @@ const getTags = async (req, res) => {
             }
         },
         {
-            $sort: { count: -1 }
+            $sort: { _id: 1 }
         }
     ])
 
@@ -204,5 +224,48 @@ const getTags = async (req, res) => {
     })
 }
 
+const getProductReviews = async (req, res) => {
+    const { id: productID } = req.params
 
-export { getProducts, getCategories, getTags }
+    const product = await Product.findOne({ _id: productID });
+    if (!product) {
+        throw new NotFoundError(`No product with id: ${productID}`);
+    }
+
+    const previews = await ProductReview.find({ productID });
+
+    const productReviews = []
+
+    for (const preview of previews) {
+
+        const customer = await User.findOne({ _id: preview.customerID })
+
+        if (!customer) {
+            throw new NotFoundError(`No user with id: ${preview.customerID}`);
+        }
+
+        productReviews.push({
+            customerName: customer.name,
+            rating: preview.rating,
+            review: preview.review,
+        })
+    }
+
+    const reviewCount = await ProductReview.countDocuments({ productID });
+
+    res.status(StatusCodes.OK).json({
+        productReviews,
+        reviewCount
+    })
+
+}
+
+const addProductReview = async (req, res) => {
+
+    const productReview = await ProductReview.create(req.body);
+
+    res.status(StatusCodes.OK).json({ productReview })
+}
+
+
+export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview }

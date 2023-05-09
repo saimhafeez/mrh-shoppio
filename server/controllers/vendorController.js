@@ -52,6 +52,7 @@ const createProduct = async (req, res) => {
         name,
         description,
         price,
+        stock,
         images,
         categories,
         tags

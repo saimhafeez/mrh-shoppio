@@ -5,12 +5,13 @@ import { BiMenu } from 'react-icons/bi'
 import { Modal, ModalOverlay, ModalHeader, ModalBody, ModalCloseButton, ModalContent, ModalFooter } from '@chakra-ui/react'
 import NavLinks from './NavLinks'
 import { useAppContext } from '../context/appContext'
+import { CreateProductReviewModal } from './site'
 
 function Header() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-    const { user } = useAppContext()
+    const { user, logoutUser } = useAppContext()
 
     return (
         <Box
@@ -89,7 +90,9 @@ function Header() {
                                         Account Settings
                                     </MenuItem>
 
-                                    <MenuItem>
+                                    <MenuItem
+                                        onClick={logoutUser}
+                                    >
                                         Logout
                                     </MenuItem>
                                 </Box>

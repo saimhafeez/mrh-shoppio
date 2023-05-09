@@ -14,7 +14,10 @@ const ProductSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: [true, 'Please Provide Product Price'],
-        trim: true
+    },
+    stock: {
+        type: Number,
+        required: [true, 'Please Provide Product Stock'],
     },
     images: [{
         type: String,

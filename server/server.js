@@ -9,8 +9,10 @@ import vendorRoutes from './routers/vendorRoutes.js'
 import siteRoutes from './routers/siteRoutes.js'
 
 // Middlewares
+import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from './middleware/auth.js'
+import Product from "./models/Product.js";
 
 
 // import Product from "./models/Product.js";
@@ -40,7 +42,7 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/vendor', authenticateUser, vendorRoutes);
 // app.use('/api/v1/vendor', vendorRoutes);
 
-
+app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
 

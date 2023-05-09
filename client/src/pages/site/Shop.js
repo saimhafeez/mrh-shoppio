@@ -23,11 +23,14 @@ import {
     Checkbox,
     CheckboxGroup,
     Tooltip,
+    Flex,
 
 } from '@chakra-ui/react'
 import { useAppContext } from '../../context/appContext'
 
 import { FiAlertCircle } from 'react-icons/fi'
+
+import ProductDetail from './ProductDetail'
 
 function Shop() {
 
@@ -260,7 +263,6 @@ function Shop() {
     return (
         <Box>
             {SideDrawer()}
-            <Header />
             <Button
                 display={{ base: 'block', xl: 'none' }}
                 onClick={() => onOpen()}
@@ -277,16 +279,22 @@ function Shop() {
                         {SidebarContent()}
 
                     </Box>
-                    <Wrap justify={'center'} w={'full'}>
+                    <Wrap
+                        justify={'center'}
+                        w={'full'}
+                        spacing={5}
+                        p={5}
+                    >
                         {products.isLoading ? <Center h={'100vh'}><Spinner /></Center> :
                             products.products.map((product, index) => {
                                 return <ProductCard
                                     key={index}
                                     name={product.name}
-                                    category={product.categories[0]}
+                                    categories={product.categories}
                                     price={product.price}
-                                    src={product.images[0]}
+                                    imageList={product.images}
                                     description={product.description}
+                                    productID={product._id}
                                 />
                             })
                         }

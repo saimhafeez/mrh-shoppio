@@ -62,6 +62,24 @@ code {
   text-overflow: ellipsis;
 }
 
+.textEllipsisTwoLines {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2;
+  /* adjust to the number of lines you want to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.textEllipsisThreeLines {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  /* adjust to the number of lines you want to show */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .verital_writing_mode {
   /* transform: rotate(-90deg) */
   writing-mode: vertical-lr !important;

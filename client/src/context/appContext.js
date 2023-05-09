@@ -45,7 +45,7 @@ const AppProvider = (({ children }) => {
     // to distinguish between 400 (Bad Request) and 401 (Authorization) errors.
 
     const authFetch = axios.create({
-        baseURL: '/api/v1/vendor',
+        baseURL: '/api/v1',
     })
 
     // Request
@@ -135,7 +135,7 @@ const AppProvider = (({ children }) => {
     const getProducts = async ({ page }) => {
 
         const { user } = state;
-        let url = `/products`
+        let url = `/vendor/products`
 
         if (user.role == 'vendor') {
 
@@ -170,7 +170,7 @@ const AppProvider = (({ children }) => {
         dispatch({ type: VENDOR_IMAGES_UPLOAD_BEGIN });
 
         try {
-            const data = await authFetch.post('/uploadImage', formData)
+            const data = await authFetch.post('vendor/uploadImage', formData)
             dispatch({ type: VENDOR_IMAGES_UPLOAD_SUCCESS, payload: { msg: 'Images Uploaded!' } });
             return data;
         } catch (error) {
@@ -180,16 +180,17 @@ const AppProvider = (({ children }) => {
 
     }
 
-    const createProduct = async ({ name, description, price, images, categories, tags }) => {
+    const createProduct = async ({ name, description, price, stock, images, categories, tags }) => {
 
         dispatch({ type: VENDOR_CREATE_PRODUCT_BEGIN });
 
         try {
 
-            await authFetch.post('/product', {
+            await authFetch.post('vendor/product', {
                 name,
                 description,
                 price,
+                stock,
                 images,
                 categories,
                 tags
@@ -258,6 +259,64 @@ const AppProvider = (({ children }) => {
         }
     }
 
+    const getSingleProduct = async (productID) => {
+        try {
+
+            const { data } = await axios.get(`/api/v1/site/shop/${productID}`)
+
+            const {
+
+                product
+
+            } = await data;
+
+            return product;
+
+        } catch (error) {
+            console.log('error in getSingleProduts', error)
+        }
+    }
+
+    const submitReview = async (review) => {
+
+        try {
+            const { data } = await axios.post('/api/v1/site/review', review)
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'success',
+                    alertText: 'Thanks for submitting a Review'
+                }
+            });
+            const { productReview } = await data
+            return productReview
+        } catch (error) {
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: `Unable to Submit Your Review (${error})`
+                }
+            });
+        }
+    }
+
+    const getProductReviews = async (productID) => {
+        try {
+            const { data } = await axios.get(`/api/v1/site/review/${productID}`)
+            return data
+
+        } catch (error) {
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: `Error in fetching Reviews (${error})`
+                }
+            });
+        }
+    }
+
     return <AppContext.Provider value={{
         ...state,
         displayAlert,
@@ -269,7 +328,10 @@ const AppProvider = (({ children }) => {
         getProducts,
         getCategories,
         getTags,
-        getAllProducts
+        getAllProducts,
+        getSingleProduct,
+        submitReview,
+        getProductReviews,
     }}>
         {children}
     </AppContext.Provider>

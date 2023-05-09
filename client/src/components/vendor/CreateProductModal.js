@@ -48,6 +48,7 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [price, setPrice] = useState(1)
+    const [stock, setStock] = useState(1)
 
     const [badgeList, setBadgeList] = useState([]);
 
@@ -85,6 +86,7 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
         setName('')
         setBadgeList([])
         setPrice(1)
+        setStock(1)
         setDescription('')
         onClose()
     }
@@ -195,10 +197,10 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
 
         badgeList.map((badge) => {
             if (badge.badgeName == 'category') {
-                categories.push(badge.badgeText)
+                categories.push(badge.badgeText.toLowerCase())
             }
             if (badge.badgeName == 'tag') {
-                tags.push(badge.badgeText)
+                tags.push(badge.badgeText.toLowerCase())
             }
         })
 
@@ -217,6 +219,7 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
             description,
             images: links,
             price,
+            stock,
             categories,
             tags,
         });
@@ -302,18 +305,13 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
                         </InputGroup>
 
 
-                        <InputGroup>
+                        <InputGroup
+                        >
                             <InputLeftAddon
                                 children='Price'
                                 minW={120}
                                 justifyContent={'center'}
                             />
-                            {/* <Input
-                                type='number'
-                                value={price}
-                                step={'.01'}
-                                onChange={(e) => setPrice(e.target.value)}
-                            /> */}
                             <NumberInput
                                 defaultValue={1}
                                 precision={2}
@@ -324,10 +322,32 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
                                 <NumberInputField
                                     onChange={(e) => setPrice(e.target.value)}
                                 />
-                                <NumberInputStepper>
+                                {/* <NumberInputStepper>
                                     <NumberIncrementStepper />
                                     <NumberDecrementStepper />
-                                </NumberInputStepper>
+                                </NumberInputStepper> */}
+                            </NumberInput>
+                        </InputGroup>
+
+                        <InputGroup>
+                            <InputLeftAddon
+                                children='Stock'
+                                minW={120}
+                                justifyContent={'center'}
+                            />
+                            <NumberInput
+                                defaultValue={1}
+                                step={1}
+                                w={'full'}
+                                min={1}
+                            >
+                                <NumberInputField
+                                    onChange={(e) => setStock(e.target.value)}
+                                />
+                                {/* <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper> */}
                             </NumberInput>
                         </InputGroup>
 
