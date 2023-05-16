@@ -131,7 +131,7 @@ function Shop() {
                 <DrawerOverlay />
                 <DrawerContent>
                     <DrawerCloseButton />
-                    <DrawerHeader>Create your account</DrawerHeader>
+                    <DrawerHeader>Filter Products</DrawerHeader>
 
                     <DrawerBody>
                         {SidebarContent()}
@@ -295,6 +295,7 @@ function Shop() {
                                     imageList={product.images}
                                     description={product.description}
                                     productID={product._id}
+                                    stock={product.stock}
                                 />
                             })
                         }

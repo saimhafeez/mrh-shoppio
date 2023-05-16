@@ -11,7 +11,7 @@ import {
     Th
 } from '@chakra-ui/react'
 import { useAppContext } from '../../../context/appContext'
-import { ProductsTable, CreateProductHero } from '../../../components/vendor'
+import { CreateProductHero } from '../../../components/vendor'
 import { LazyImage } from '../../../components'
 import { AiOutlineNumber } from 'react-icons/ai'
 

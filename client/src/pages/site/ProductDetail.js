@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai'
+import { AiOutlinePlus, AiOutlineMinus, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 
 import {
     Box,
@@ -34,7 +34,7 @@ import {
 
 } from '@chakra-ui/react'
 import { useAppContext } from '../../context/appContext'
-import { CreateProductReviewModal } from '../../components/site'
+import { CreateProductReviewModal, PriceComponent } from '../../components/site'
 
 
 function ProductDetail() {
@@ -51,28 +51,26 @@ function ProductDetail() {
         reviewCount: null,
     });
 
-    const { getSingleProduct, user, submitReview, getProductReviews } = useAppContext()
+    const { getSingleProduct, cart, user, submitReview, getProductReviews, isInWishlist, addToWishList, removeFromWishList } = useAppContext()
+
+    const [productInCart, setProductInCart] = useState(false)
+    const [inWishList, setInWishlist] = useState(false);
 
     const fetchProduct = async () => {
-        const data = await getSingleProduct(
-            window.location.pathname.split('/')[window.location.pathname.split('/').length - 1]
-        );
-
-        setShopProduct({
-            isLoading: false,
-            data: data
-        })
-
-        setCurrentActiveImage(data.images[0])
-
-        setProductDescription({
-            isComplete: false,
-            des: data.description.slice(0, 400) + `${data.description.length > 400 ? "..... " : ''}`
+        return new Promise(async (resolve, reject) => {
+            try {
+                const data = await getSingleProduct(
+                    window.location.pathname.split('/')[window.location.pathname.split('/').length - 1]
+                );
+                resolve(data)
+            } catch (error) {
+                reject(error)
+            }
         })
 
     }
 
-    const retchReviews = async () => {
+    const fetchReviews = async () => {
         const { productReviews, reviewCount } = await getProductReviews(window.location.pathname.split('/')[window.location.pathname.split('/').length - 1])
 
         setProductReviews({
@@ -84,10 +82,45 @@ function ProductDetail() {
         console.log({ productReviews, reviewCount })
     }
 
+    const handleWishList = async () => {
+        setInWishlist(!inWishList)
+
+        if (inWishList) {
+            const data = await removeFromWishList(shopProduct.data.productID)
+        } else {
+            const data = await addToWishList(shopProduct.data.productID)
+        }
+    }
+
     useEffect(() => {
         window.scrollTo(0, 0);
-        fetchProduct()
-        retchReviews()
+        fetchProduct().then((data) => {
+
+            setShopProduct({
+                isLoading: false,
+                data: data
+            })
+
+            setCurrentActiveImage(data.images[0])
+
+            setProductDescription({
+                isComplete: false,
+                des: data.description.slice(0, 400) + `${data.description.length > 400 ? "..... " : ''}`
+            })
+
+            fetchReviews()
+            for (const item of cart) {
+                if (item.productId === data._id) {
+                    console.log('product in cart')
+                    setProductInCart(true);
+                    break;
+                }
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+
+
 
     }, [])
 
@@ -113,6 +146,9 @@ function ProductDetail() {
             productID: shopProduct.data._id,
             customerID: user._id
         })
+
+        productReview.isLoading = true;
+        fetchReviews()
     }
 
     return (
@@ -188,7 +224,7 @@ function ProductDetail() {
                             <Stack
                                 direction='row'
                             >
-                                {shopProduct.data.name.split(' ').map((text, index) => {
+                                {shopProduct.data.name.split(' ').splice(0, 3).map((text, index) => {
                                     return <Heading
                                         key={index}
                                         fontWeight={index == 1 ? 'bold' : 'normal'}
@@ -198,31 +234,7 @@ function ProductDetail() {
                                 })}
                             </Stack>
 
-                            <Stack
-                                direction={'row'}
-                                align={'center'}
-                                spacing={1}
-                            >
-                                <Text
-                                    fontFamily={'brandSymbol'}
-                                    fontSize={'2xl'}
-                                    fontWeight={'bold'}
-                                    // opacity={'0.7'}
-                                    color={'brand_primary.300'}
-                                >
-                                    $
-                                </Text>
-
-                                <Text
-                                    fontSize={'2xl'}
-                                    fontWeight={'bold'}
-                                    // opacity={'0.7'}
-                                    color={'brand_primary.300'}
-                                >
-                                    {shopProduct.data.price.toFixed(2)}
-                                </Text>
-
-                            </Stack>
+                            <PriceComponent price={shopProduct.data.price.toFixed(2)} />
 
                             <Stack
                                 direction={'row'}
@@ -305,12 +317,21 @@ function ProductDetail() {
                                     </Box>
                                 </Stack>
 
-                                <Button
-                                    colorScheme='brand_primary'
-                                    borderRadius={'10px'}
-                                >
-                                    ADD TO CART
-                                </Button>
+                                <ButtonGroup isAttached variant={'outline'}>
+                                    <Button
+                                        colorScheme='brand_primary'
+                                        borderRadius={'10px'}
+                                        isDisabled={productInCart || shopProduct.data.stock === 0}
+                                    >
+                                        {productInCart ? 'ADDED' : shopProduct.data.stock === 0 ? 'SOLD-OUT' : 'ADD TO CART'}
+                                    </Button>
+                                    <Button
+                                        colorScheme='brand_primary'
+                                        borderRadius={'10px'}
+                                    >
+                                        <AiOutlineHeart />
+                                    </Button>
+                                </ButtonGroup>
                             </Stack>
                         </Box>
                     </Stack >
@@ -356,7 +377,9 @@ function ProductDetail() {
                                             spacing={5}
                                         >
                                             <Avatar name={review.customerName} />
-                                            <Box>
+                                            <Box
+                                                w={'full'}
+                                            >
                                                 <Text
                                                     // fontStyle={'italic'}
                                                     fontWeight={'bold'}

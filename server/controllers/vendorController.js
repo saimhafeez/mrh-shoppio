@@ -1,6 +1,7 @@
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, UnAuthenticatedError } from '../errors/index.js'
+import { BadRequestError, NotFoundError, UnAuthenticatedError } from '../errors/index.js'
 
 import multiparty from 'multiparty'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
@@ -117,5 +118,55 @@ const uploadImages = async (req, res) => {
     res.status(StatusCodes.OK).json({ links })
 }
 
+const getOrders = async (req, res) => {
+    const { vendorId } = req.query
 
-export { getProducts, createProduct, uploadImages }
+    const ordersSet = await Order.find({ vendorID: vendorId })
+
+    const orders = []
+
+    for (const orderSet of ordersSet) {
+
+        const products = [];
+
+        for (const product of orderSet.products) {
+
+            const pdt = await Product.findById(product.productID);
+
+            products.push({
+                product: pdt,
+                quantity: product.quantity
+            })
+        }
+
+        orders.push({
+            ...orderSet._doc,
+            products: products
+        })
+    }
+
+    res.status(StatusCodes.OK).json({ orders })
+}
+
+const updateOrderStatus = async (req, res) => {
+    const { id } = req.params;
+    const { orderStatus } = req.body
+
+    const order = await Order.findById(id);
+
+
+    if (!order) {
+        throw new NotFoundError(`no such order with id ${id}`)
+    }
+
+    const updatedOrder = await Order.findOneAndUpdate(
+        { _id: id },
+        { $set: { status: orderStatus } },
+        { new: true }
+    )
+
+    res.status(StatusCodes.OK).json({ updatedOrder });
+}
+
+
+export { getProducts, createProduct, uploadImages, getOrders, updateOrderStatus }

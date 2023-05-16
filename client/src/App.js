@@ -4,7 +4,8 @@ import { Landing, ProtectedRoute, Register } from "./pages";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SharedLayout, Stats, Products, Orders } from "./pages/vendor/dashboard";
 import { Box } from "@chakra-ui/react";
-import { Home, ProductDetail, Shop, SiteSharedLayout } from "./pages/site";
+import { Checkout, Home, ProductDetail, Shop, SiteSharedLayout, WishList } from "./pages/site";
+import { BiCheckbox } from "react-icons/bi";
 
 
 function App() {
@@ -20,6 +21,8 @@ function App() {
           <Route path="/shop" element={<SiteSharedLayout />}
           >
             <Route index element={<Shop />} />
+            <Route path="wishlist" element={<WishList />} />
+            <Route path="checkout" element={<Checkout />} />
             <Route path=":id" element={<ProductDetail />} />
 
           </Route>

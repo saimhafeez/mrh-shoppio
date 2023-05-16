@@ -7,6 +7,7 @@ import 'express-async-errors' // passes the errors to the middleware without the
 import authRoutes from './routers/authRoutes.js'
 import vendorRoutes from './routers/vendorRoutes.js'
 import siteRoutes from './routers/siteRoutes.js'
+import customerRoutes from './routers/customerRoutes.js'
 
 // Middlewares
 import notFoundMiddleware from "./middleware/not-found.js";
@@ -40,7 +41,7 @@ app.get('/api/v1', (req, res) => {
 app.use('/api/v1/site', siteRoutes);
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/vendor', authenticateUser, vendorRoutes);
-// app.use('/api/v1/vendor', vendorRoutes);
+app.use('/api/v1/customer', authenticateUser, customerRoutes);
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

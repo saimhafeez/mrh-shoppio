@@ -16,6 +16,16 @@ import {
     VENDOR_IMAGES_UPLOAD_ERROR,
     GET_PRODUCTS_BEGIN,
     GET_PRODUCTS_SUCCESS,
+    ADD_TO_WISHLIST_BEGIN,
+    ADD_TO_WISHLIST_SUCCESS,
+    ADD_TO_WISHLIST_ERROR,
+    REMOVE_FROM_WISHLIST_BEGIN,
+    REMOVE_FROM_WISHLIST_SUCCESS,
+    REMOVE_FROM_WISHLIST_ERROR,
+    UPDATE_CART,
+    SUBMIT_ORDER_BEGIN,
+    SUBMIT_ORDER_SUCCESS,
+    SUBMIT_ORDER_ERROR,
 } from "./actions";
 
 import reducer from "./reducer";
@@ -23,6 +33,7 @@ import reducer from "./reducer";
 
 const user = localStorage.getItem('user');
 const token = localStorage.getItem('token');
+const cart = localStorage.getItem('cart');
 
 const initialState = {
     user: user ? JSON.parse(user) : null,
@@ -32,6 +43,7 @@ const initialState = {
     alertStatus: '',
     roleOptions: ['customer', 'vendor'],
     isLoading: false,
+    cart: cart ? JSON.parse(cart) : []
 }
 
 
@@ -97,6 +109,82 @@ const AppProvider = (({ children }) => {
     const removeUserFromLocalStorage = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+    }
+
+    const removeCartFromLocalStorage = (productId, cart) => {
+        var cartProducts = []
+        if (cart !== null) {
+            for (const item of cart) {
+                if (item.productId === productId) {
+                    if (item.quantity !== 1) {
+                        cartProducts.push({
+                            ...item,
+                            quantity: item.quantity - 1
+                        })
+                    } else {
+                        dispatch({
+                            type: SHOW_ALERT,
+                            payload: {
+                                showAlert: true,
+                                alertStatus: 'info',
+                                alertText: 'Product Removed From Cart'
+                            }
+                        })
+                    }
+                } else {
+                    cartProducts.push(item)
+                }
+            }
+        }
+        dispatch({
+            type: UPDATE_CART,
+            payload: {
+                cart: cartProducts
+            }
+        })
+        localStorage.setItem('cart', JSON.stringify(cartProducts));
+    }
+
+    const addCartToLocalStorage = (cartProduct, cart) => {
+        const cartProducts = []
+
+        var flag = false
+
+        if (cart !== null) {
+
+            for (const item of cart) {
+
+                if (item.productId === cartProduct.productId) {
+                    cartProducts.push({
+                        ...item,
+                        quantity: item.quantity + 1
+                    })
+                    flag = true
+                } else {
+                    cartProducts.push(item)
+                }
+            }
+        }
+
+        if (!flag) {
+            cartProducts.push(cartProduct)
+
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    showAlert: true,
+                    alertStatus: 'info',
+                    alertText: 'Product Added to Cart'
+                }
+            })
+        }
+        dispatch({
+            type: UPDATE_CART,
+            payload: {
+                cart: cartProducts
+            }
+        })
+        localStorage.setItem('cart', JSON.stringify(cartProducts));
     }
 
 
@@ -220,7 +308,13 @@ const AppProvider = (({ children }) => {
             return { categories };
 
         } catch (error) {
-            console.log('error in getCategories', error)
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: error.response.data.msg
+                }
+            });
         }
     }
 
@@ -235,7 +329,13 @@ const AppProvider = (({ children }) => {
             return { tags };
 
         } catch (error) {
-            console.log('error in getTags', error)
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: error.response.data.msg
+                }
+            });
         }
     }
 
@@ -255,25 +355,29 @@ const AppProvider = (({ children }) => {
             return { products, totalProducts, numOfPages };
 
         } catch (error) {
-            console.log('error in getAllProducts', error)
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: error.response.data.msg
+                }
+            });
         }
     }
 
     const getSingleProduct = async (productID) => {
         try {
-
             const { data } = await axios.get(`/api/v1/site/shop/${productID}`)
-
-            const {
-
-                product
-
-            } = await data;
-
+            const { product } = await data;
             return product;
-
         } catch (error) {
-            console.log('error in getSingleProduts', error)
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: error.response.data
+                }
+            });
         }
     }
 
@@ -317,6 +421,120 @@ const AppProvider = (({ children }) => {
         }
     }
 
+    const getWishList = async () => {
+
+        const { user } = state;
+        let url = `/customer/wishlist?customerID=${user._id}`
+        try {
+            const { data } = await authFetch(url)
+            const { products, count } = await data;
+            return { products, count };
+        } catch (error) {
+            console.log(error);
+            // logoutUser()
+        }
+    }
+
+    const addToWishList = async (productID) => {
+        let url = `/customer/wishlist?productID=${productID}`
+        const { user } = state
+        url += `&customerID=${user._id}`
+        try {
+            dispatch({ type: ADD_TO_WISHLIST_BEGIN })
+            const { data } = await authFetch.post(url)
+            dispatch({ type: ADD_TO_WISHLIST_SUCCESS })
+        } catch (error) {
+            dispatch({
+                type: ADD_TO_WISHLIST_ERROR,
+                payload: { msg: error.response.data.msg }
+            })
+        }
+    }
+
+    const removeFromWishList = async (productID) => {
+        let url = `/customer/wishlist?productID=${productID}`
+        const { user } = state
+        url += `&customerID=${user._id}`
+        try {
+            dispatch({ type: REMOVE_FROM_WISHLIST_BEGIN })
+            const { data } = await authFetch.delete(url)
+            dispatch({ type: REMOVE_FROM_WISHLIST_SUCCESS })
+        } catch (error) {
+            dispatch({
+                type: REMOVE_FROM_WISHLIST_ERROR,
+                payload: { msg: error.response.data.msg }
+            })
+        }
+    }
+
+    const isInWishlist = async (productID) => {
+        const { user } = state
+        let url = `/customer/wishlist/${productID}?customerID=${user._id}`
+        try {
+            const { data } = await authFetch(url)
+            const result = await data;
+            return result
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const submitOrder = async ({
+        cart,
+        customerID,
+        shippingAddress
+    }) => {
+        dispatch({
+            type: SUBMIT_ORDER_BEGIN
+        })
+        try {
+
+            const { data } = await axios.post('/api/v1/site/order', {
+                cart,
+                customerID,
+                shippingAddress
+            });
+
+            const { orders, ordersCount } = await data;
+
+            return { orders, ordersCount };
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const getVendorOrders = async (vendorId) => {
+        try {
+
+            const { data } = await authFetch(`/vendor/orders?vendorId=${vendorId}`)
+
+            const { orders } = await data
+
+            return { orders }
+
+        } catch (error) {
+
+        }
+    }
+
+    const updateOrderStatus = async (orderID, orderStatus) => {
+        try {
+            const { data } = await authFetch.post(`/vendor/order/${orderID}`, { orderStatus });
+            const { updatedOrder } = await data
+            return { updatedOrder }
+
+        } catch (error) {
+            dispatch({
+                type: SHOW_ALERT,
+                payload: {
+                    alertStatus: 'error',
+                    alertText: error.response.data.msg
+                }
+            })
+        }
+    }
+
     return <AppContext.Provider value={{
         ...state,
         displayAlert,
@@ -332,6 +550,15 @@ const AppProvider = (({ children }) => {
         getSingleProduct,
         submitReview,
         getProductReviews,
+        getWishList,
+        addToWishList,
+        removeFromWishList,
+        isInWishlist,
+        addCartToLocalStorage,
+        removeCartFromLocalStorage,
+        submitOrder,
+        getVendorOrders,
+        updateOrderStatus,
     }}>
         {children}
     </AppContext.Provider>

@@ -41,7 +41,7 @@ function CreateProductReviewModal({ isOpen, onOpen, onClose, fetchReviewsCallbac
     const { displayAlert, isLoading } = useAppContext();
     const [rating, setRating] = useState(4)
     const [review, setReview] = useState('')
-    const [sliderThumb, setSliderThumb] = useState('😊')
+    const [sliderThumb, setSliderThumb] = useState('')
 
     useEffect(() => {
         //'😡', '😕', '😐', '😃', '🤩'
@@ -59,7 +59,9 @@ function CreateProductReviewModal({ isOpen, onOpen, onClose, fetchReviewsCallbac
     }, [rating])
 
     const clearFields = () => {
-
+        setRating(4)
+        setReview('')
+        onClose()
     }
 
     const submitReview = async () => {

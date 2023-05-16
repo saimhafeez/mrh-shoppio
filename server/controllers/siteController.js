@@ -3,12 +3,13 @@ import { StatusCodes } from "http-status-codes";
 import NotFoundError from "../errors/not-found.js";
 import ProductReview from "../models/ProductReview.js";
 import User from "../models/User.js";
+import Order from "../models/Order.js";
 
 
 const getProducts = async (req, res) => {
 
 
-    console.log(req.query)
+    // console.log(req.query)
 
     // var queryObject = {
     //     $or: []
@@ -26,7 +27,7 @@ const getProducts = async (req, res) => {
     // considering i get non-empty query filters only
     const keys = Object.keys(req.query);
 
-    console.log('keys', keys)
+    // console.log('keys', keys)
 
     if (keys.length > 0) {
         queryObject[filterType == 'any' ? '$or' : '$and'] = []
@@ -34,7 +35,7 @@ const getProducts = async (req, res) => {
 
     for (const key of keys) {
 
-        console.log('key', key)
+        // console.log('key', key)
 
         const values = req.query[key].split(',')
 
@@ -82,7 +83,7 @@ const getProducts = async (req, res) => {
     //     delete queryObject.$and
     // }
 
-    console.log('queryObject', queryObject)
+    // console.log('queryObject', queryObject)
 
     // const greaterThan = null;
     // const lessThan = null;
@@ -162,7 +163,7 @@ const getProducts = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
 
-    console.log(req.params)
+    // console.log(req.params)
 
     const { id: productID } = req.params
 
@@ -267,5 +268,69 @@ const addProductReview = async (req, res) => {
     res.status(StatusCodes.OK).json({ productReview })
 }
 
+const submitOrder = async (req, res) => {
 
-export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview }
+    const { cart, customerID, shippingAddress } = req.body
+
+    // console.log('submitOrder', { cart, customerID, shippingAddress })
+
+    const productOrders = []
+
+    for (const item of cart) {
+
+        const { vendorId } = await Product.findById(item.productId);
+
+        var order = {
+            vendorID: vendorId.toString(),
+            shippingAddress,
+            products: []
+        }
+
+        if (customerID) {
+            order.customerID = customerID
+        }
+
+        const newProduct = {
+            productID: item.productId,
+            quantity: item.quantity
+        }
+
+        if (productOrders.length === 0) {
+            order.products.push(newProduct)
+            productOrders.push(order)
+        } else {
+
+            var flag_vendorIdFound = false;
+
+            for (const existingOrder of productOrders) {
+                if (existingOrder.vendorID === vendorId.toString()) {
+                    existingOrder.products.push(newProduct)
+                    flag_vendorIdFound = true
+                }
+            }
+
+            if (!flag_vendorIdFound) {
+                order.products.push(newProduct)
+                productOrders.push(order)
+            }
+
+        }
+
+        // orders.push(vendorId.toString())
+
+    }
+
+    var orders = []
+
+    for (const productOrder of productOrders) {
+        const order = await Order.create(productOrder);
+
+        orders.push(order)
+    }
+
+
+    res.status(StatusCodes.OK).json({ orders, ordersCount: orders.length })
+}
+
+
+export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview, submitOrder }

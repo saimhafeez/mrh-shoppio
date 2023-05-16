@@ -7,6 +7,7 @@ function SiteSharedLayout() {
     return (
         <Stack
             direction={'column'}
+            spacing={0}
         >
             <Header />
 

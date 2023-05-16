@@ -13,6 +13,16 @@ import {
     VENDOR_IMAGES_UPLOAD_ERROR,
     GET_PRODUCTS_BEGIN,
     GET_PRODUCTS_SUCCESS,
+    ADD_TO_WISHLIST_BEGIN,
+    ADD_TO_WISHLIST_SUCCESS,
+    ADD_TO_WISHLIST_ERROR,
+    REMOVE_FROM_WISHLIST_BEGIN,
+    REMOVE_FROM_WISHLIST_SUCCESS,
+    REMOVE_FROM_WISHLIST_ERROR,
+    UPDATE_CART,
+    SUBMIT_ORDER_BEGIN,
+    SUBMIT_ORDER_SUCCESS,
+    SUBMIT_ORDER_ERROR,
 } from './actions'
 
 import { initialState } from "./appContext";
@@ -78,6 +88,7 @@ const reducer = (state, action) => {
     }
 
 
+
     // GET PRODUCTS
     if (action.type === GET_PRODUCTS_BEGIN) {
         return ({
@@ -141,6 +152,69 @@ const reducer = (state, action) => {
             showAlert: true,
             alertStatus: 'error',
             alertText: action.payload.msg
+        }
+    }
+    if (action.type === ADD_TO_WISHLIST_BEGIN) {
+        return {
+            ...state,
+            isLoading: true
+        }
+    }
+    if (action.type === ADD_TO_WISHLIST_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertStatus: 'success',
+            alertText: 'Product added to your Wishlist'
+        }
+    }
+    if (action.type === ADD_TO_WISHLIST_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertStatus: 'error',
+            alertText: `Error adding product to wishlist [${action.payload.msg}]`
+        }
+    }
+    if (action.type === REMOVE_FROM_WISHLIST_BEGIN) {
+        return {
+            ...state,
+            isLoading: true
+        }
+    }
+    if (action.type === REMOVE_FROM_WISHLIST_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertStatus: 'success',
+            alertText: 'Product removed from your Wishlist'
+        }
+    }
+    if (action.type === REMOVE_FROM_WISHLIST_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertStatus: 'error',
+            alertText: `Error removing product from wishlist [${action.payload.msg}]`
+        }
+    }
+    if (action.type === UPDATE_CART) {
+
+        // console.log('reducer cart ', action.payload.cart)
+
+        return {
+            ...state,
+            cart: action.payload.cart
+        }
+    }
+
+    if (action.type === SUBMIT_ORDER_BEGIN) {
+        return {
+            ...state
         }
     }
 

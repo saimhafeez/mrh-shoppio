@@ -6,6 +6,7 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import CustomBadge from "./CustomBadge";
 import LazyImage from "./LazyImage";
+import UserHeaderMenu from "./UserHeaderMenu";
 
 export {
     FormRow,
@@ -16,4 +17,5 @@ export {
     Sidebar,
     CustomBadge,
     LazyImage,
+    UserHeaderMenu,
 }

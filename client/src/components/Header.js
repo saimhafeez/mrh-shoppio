@@ -6,12 +6,13 @@ import { Modal, ModalOverlay, ModalHeader, ModalBody, ModalCloseButton, ModalCon
 import NavLinks from './NavLinks'
 import { useAppContext } from '../context/appContext'
 import { CreateProductReviewModal } from './site'
+import { UserHeaderMenu } from './'
+
+
 
 function Header() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
-
-    const { user, logoutUser } = useAppContext()
 
     return (
         <Box
@@ -45,59 +46,7 @@ function Header() {
                         <Button display={{ lg: 'none' }} onClick={onOpen}>
                             {<BiMenu />}
                         </Button>
-
-                        <Menu>
-                            <MenuButton
-                                as={Button}
-                                rounded={'full'}
-                                variant={'link'}
-                                cursor={'pointer'}
-                                minW={0}
-                            >
-                                <Avatar
-                                    size={'sm'}
-                                    name={user.name}
-                                />
-                            </MenuButton>
-
-                            <MenuList
-                                alignItems={'center'}
-                                mr={5}
-
-                            >
-                                <Box
-                                    maxH={'50vh'}
-                                    overflow={'auto'}
-                                >
-                                    <br />
-                                    <Center>
-                                        <Avatar
-                                            size={'2xl'}
-                                            name={user.name}
-                                        />
-                                    </Center>
-                                    <br />
-                                    <Center>
-                                        <p>Username</p>
-                                    </Center>
-                                    <br />
-                                    <MenuDivider />
-                                    <MenuItem>
-                                        Your Servers
-                                    </MenuItem>
-
-                                    <MenuItem>
-                                        Account Settings
-                                    </MenuItem>
-
-                                    <MenuItem
-                                        onClick={logoutUser}
-                                    >
-                                        Logout
-                                    </MenuItem>
-                                </Box>
-                            </MenuList>
-                        </Menu>
+                        {<UserHeaderMenu />}
                     </Stack>
                 </Flex>
             </Flex>
