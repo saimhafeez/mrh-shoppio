@@ -23,6 +23,10 @@ import {
     SUBMIT_ORDER_BEGIN,
     SUBMIT_ORDER_SUCCESS,
     SUBMIT_ORDER_ERROR,
+    UPDATE_USER_BEGIN,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_ERROR,
+    CLEAR_CART,
 } from './actions'
 
 import { initialState } from "./appContext";
@@ -211,10 +215,45 @@ const reducer = (state, action) => {
             cart: action.payload.cart
         }
     }
+    if (action.type === CLEAR_CART) {
+        return {
+            ...state,
+            cart: []
+        }
+    }
 
     if (action.type === SUBMIT_ORDER_BEGIN) {
         return {
             ...state
+        }
+    }
+
+    if (action.type === UPDATE_USER_BEGIN) {
+        return {
+            ...state,
+            isLoading: true
+        }
+    }
+    if (action.type === UPDATE_USER_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            [state.user.profileUrl]: action.payload.profileUrl || state.user.profileUrl,
+            [state.user.name]: action.payload.profileUrl || state.user.name,
+            [state.user.email]: action.payload.email || state.user.email,
+            showAlert: true,
+            alertStatus: 'success',
+            alertText: 'Changes Saved'
+        }
+    }
+    if (action.type === UPDATE_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertStatus: 'error',
+            alertText: `Unable to save changes, ${action.payload.msg}`
+
         }
     }
 

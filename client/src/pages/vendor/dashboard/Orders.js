@@ -27,6 +27,7 @@ import { PriceComponent } from '../../../components/site'
 
 import { orderStatusList } from '../../../utils/OrderStatusList'
 import OrderItem from '../../../components/vendor/OrderItem'
+import { InputCompnent } from '../../../components'
 
 function Orders() {
 
@@ -34,14 +35,21 @@ function Orders() {
 
     const [vendorOrders, setVendorOrders] = useState({
         isLoading: true,
-        orders: []
+        orders: [],
+        searchedOrders: null
+    })
+
+    const [filter, setFilter] = useState({
+        search: '',
+        sort: 'latest',
+        status: 'all'
     })
 
 
     const init = async () => {
         return new Promise(async (resolve, reject) => {
             try {
-                const { orders } = await getVendorOrders(user._id);
+                const { orders } = await getVendorOrders(user._id, filter.sort, filter.status);
                 resolve(orders);
             } catch (error) {
                 reject(error)
@@ -62,35 +70,124 @@ function Orders() {
             console.log(error)
         })
 
-    }, [])
+    }, [filter.sort, filter.status])
+
+
+    const handleChanges = (e) => {
+
+        setFilter(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }))
+
+        if (e.target.name !== 'search') {
+            setVendorOrders(prev => ({
+                ...prev,
+                isLoading: true,
+            }))
+        } else {
+            if (e.target.value === '') {
+                setVendorOrders(prev => ({
+                    ...prev,
+                    searchedOrders: null
+                }))
+            }
+        }
+    }
+
+    const filterbySearch = () => {
+        const searchedOrders = [];
+
+        vendorOrders.orders.map((order, index) => {
+
+            // console.log(order)
+
+            if (order._id === filter.search) {
+                searchedOrders.push(order)
+            }
+
+            searchedOrders.map((o) => {
+                if (o._id === order._id) {
+                    order.products.map((item, index) => {
+                        if (item.product.name.toLowerCase().includes(filter.search.toLowerCase())) {
+                            searchedOrders.push(order)
+                        }
+                    })
+                }
+            })
+
+        })
+
+        setVendorOrders(prev => ({
+            ...prev,
+            searchedOrders
+        }))
+
+    }
 
     return (
         <Stack
             p={5}
+            spacing={10}
         >
-            {vendorOrders.isLoading ? <Center>
-                <CircularProgress isIndeterminate color='brand_primary.500' />
-            </Center>
-                : vendorOrders.orders.map((order, index) => {
-                    return <OrderItem key={index} order={order} />
-                })
-            }
-        </Stack >
+            <Stack
+                direction={{ base: 'column', lg: 'row' }}
+                justifyContent='end'
+            >
+                {/* <Stack
+                    direction='row'
+                >
+                    <InputCompnent
+                        handleChange={handleChanges}
+                        name={'search'}
+                        minW={{ base: undefined, lg: '360px' }}
+                        w={{ base: '100%', lg: '25%' }}
+                        placeholder='enter order id or product name'
+                    />
+                    <Button onClick={filterbySearch}>Go</Button>
+                </Stack> */}
+                <Stack
+                    direction='row'
+                >
+                    <Select
+                        maxW={'200px'}
+                        alignSelf='end'
+                        onChange={handleChanges}
+                        name='sort'
+                    >
+                        <option value="lastest">Latest</option>
+                        <option value="oldest">Oldest</option>
+                    </Select>
+                    <Select
+                        maxW={'200px'}
+                        minW={{ base: undefined, lg: '150px' }}
+                        alignSelf='end'
+                        onChange={handleChanges}
+                        name='status'
+                    >
+                        <option value="all">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="received">Received</option>
+                        <option value="returned">Returned</option>
+                    </Select>
+                </Stack>
+            </Stack>
+            <Stack
+                spacing={7}
+            >
+                {vendorOrders.isLoading ? <Center>
+                    <CircularProgress isIndeterminate color='brand_primary.500' />
+                </Center>
+                    : vendorOrders.orders.length > 0 ? vendorOrders.orders.map((order, index) => {
+                        return <OrderItem key={index} order={order} />
+                    }) : <Center>
+                        <Text>No Orders</Text>
+                    </Center>
+                }
+            </Stack >
+        </Stack>
     )
 }
-
-/*
-    
-    Pending: Light gray (#CCCCCC) or pale yellow (#FFFACD)
-    Shipped: Green (#008000) or light blue (#ADD8E6)
-    Received: Dark blue (#00008B) or deep purple (#800080)
-    Returned: Orange (#FFA500) or dark red (#8B0000)
-
-    Light color of pale yellow (#FFFDE7)
-    Light color of light blue (#BFEFFF)
-    Light color of deep purple (#A984FF)
-    Light color of dark red (#FF5F5F)
-    
-    */
 
 export default Orders

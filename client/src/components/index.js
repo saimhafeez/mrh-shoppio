@@ -7,6 +7,8 @@ import Sidebar from "./Sidebar";
 import CustomBadge from "./CustomBadge";
 import LazyImage from "./LazyImage";
 import UserHeaderMenu from "./UserHeaderMenu";
+import InputCompnent from "./InputCompnent";
+
 
 export {
     FormRow,
@@ -18,4 +20,5 @@ export {
     CustomBadge,
     LazyImage,
     UserHeaderMenu,
+    InputCompnent
 }

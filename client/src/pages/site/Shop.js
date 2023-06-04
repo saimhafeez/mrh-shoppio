@@ -27,10 +27,12 @@ import {
 
 } from '@chakra-ui/react'
 import { useAppContext } from '../../context/appContext'
-
+import { FiFilter } from 'react-icons/fi'
 import { FiAlertCircle } from 'react-icons/fi'
+import { AiOutlineDelete, AiOutlineSearch } from 'react-icons/ai'
 
 import ProductDetail from './ProductDetail'
+import { InputCompnent } from '../../components'
 
 function Shop() {
 
@@ -111,10 +113,16 @@ function Shop() {
         loadProducts()
     }, [])
 
-    const [searchQueryObject, setSearchQueryObject] = useState({})
-    searchQueryObject.categories = searchParams.get('categories') || null;
-    searchQueryObject.tags = searchParams.get('tags') || null;
-    searchQueryObject.filterType = searchParams.get('filterType') || null;
+    const [searchQueryObject, setSearchQueryObject] = useState({
+        categories: searchParams.get('categories') || null,
+        tags: searchParams.get('tags') || null,
+        filterType: searchParams.get('filterType') || null,
+        search: searchParams.get('search') || null
+    })
+    // searchQueryObject.categories = searchParams.get('categories') || null;
+    // searchQueryObject.tags = searchParams.get('tags') || null;
+    // searchQueryObject.filterType = searchParams.get('filterType') || null;
+    // searchQueryObject.search = searchParams.get('search') || null;
 
     console.log(searchQueryObject)
 
@@ -164,7 +172,7 @@ function Shop() {
 
     const handleURLSearchParams = ({ title, badgeTitle, selected }) => {
 
-        console.log('-->', { title, badgeTitle, selected })
+        // console.log('-->', { title, badgeTitle, selected })
 
         var values = [];
 
@@ -181,7 +189,20 @@ function Shop() {
         searchQueryObject[badgeTitle] = values.join(',')
         updateURL()
 
-        // console.log(searchQueryObject, values);
+    }
+
+    const handleSearchChange = (e) => {
+        if (e.target.value === '') {
+            setSearchQueryObject(prev => ({
+                ...prev,
+                [e.target.name]: null
+            }))
+            return
+        }
+        setSearchQueryObject(prev => ({
+            ...prev,
+            search: e.target.value
+        }))
     }
 
     const handleFilterTypeChange = (e) => {
@@ -261,14 +282,12 @@ function Shop() {
     }
 
     return (
-        <Box>
+        <Box
+            pt={12}
+        >
             {SideDrawer()}
-            <Button
-                display={{ base: 'block', xl: 'none' }}
-                onClick={() => onOpen()}
-            // ref={btnRef}
-            >Open Sidebar</Button>
             <Box p={{ base: 3, sm: 1 }}>
+
                 <Stack direction={{ base: 'column', xl: 'row' }}>
                     <Box
                         w={'300px'}
@@ -279,28 +298,58 @@ function Shop() {
                         {SidebarContent()}
 
                     </Box>
-                    <Wrap
-                        justify={'center'}
-                        w={'full'}
-                        spacing={5}
-                        p={5}
+
+                    <Box
+                        w='full'
                     >
-                        {products.isLoading ? <Center h={'100vh'}><Spinner /></Center> :
-                            products.products.map((product, index) => {
-                                return <ProductCard
-                                    key={index}
-                                    name={product.name}
-                                    categories={product.categories}
-                                    price={product.price}
-                                    imageList={product.images}
-                                    description={product.description}
-                                    productID={product._id}
-                                    stock={product.stock}
-                                />
-                            })
-                        }
-                        {!products.isLoading && products.products.length === 0 && <Center h={'100vh'}><Text>No Products Found!</Text></Center>}
-                    </Wrap>
+                        <Stack
+                            direction='row'
+                            justifyContent='center'
+                        >
+                            <Button
+                                display={{ base: 'block', xl: 'none' }}
+                                onClick={() => onOpen()}
+                                w='fit-content'
+                            >
+                                <FiFilter />
+                            </Button>
+
+                            <InputCompnent
+                                value={searchQueryObject.search || ''}
+                                name='search'
+                                handleChange={handleSearchChange}
+                                placeholder='Enter Product Name'
+                            />
+                            <Button
+                                onClick={updateURL}
+                            >
+                                <AiOutlineSearch />
+                            </Button>
+                        </Stack>
+
+                        <Wrap
+                            justify={'center'}
+                            w={'full'}
+                            spacing={5}
+                            p={5}
+                        >
+                            {products.isLoading ? <Center h={'100vh'}><Spinner /></Center> :
+                                products.products.map((product, index) => {
+                                    return <ProductCard
+                                        key={index}
+                                        name={product.name}
+                                        categories={product.categories}
+                                        price={product.price}
+                                        imageList={product.images}
+                                        description={product.description}
+                                        productID={product._id}
+                                        stock={product.stock}
+                                    />
+                                })
+                            }
+                            {!products.isLoading && products.products.length === 0 && <Center h={'100vh'}><Text>No Products Found!</Text></Center>}
+                        </Wrap>
+                    </Box>
                 </Stack>
             </Box >
         </Box >

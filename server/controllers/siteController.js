@@ -4,6 +4,9 @@ import NotFoundError from "../errors/not-found.js";
 import ProductReview from "../models/ProductReview.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
+import Notification from "../models/Notification.js";
+import BadRequestError from "../errors/bad-request.js";
+import mongoose from "mongoose";
 
 
 const getProducts = async (req, res) => {
@@ -18,7 +21,10 @@ const getProducts = async (req, res) => {
 
     const filterType = req.query.filterType
 
+    const search = req.query.search
+
     delete req.query.filterType
+    delete req.query.search
 
     // console.log(req.query)
     // console.log(orList, andList)
@@ -106,8 +112,13 @@ const getProducts = async (req, res) => {
     //     categories: { '$in': ['asus'] }
     // }
 
-    let result = Product.find(queryObject)
+    console.log('queryObject', queryObject)
 
+
+
+    let result = search ? Product.find(
+        { name: { $regex: search, $options: "i" } }
+    ) : Product.find(queryObject)
 
     const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || 90
@@ -278,7 +289,12 @@ const submitOrder = async (req, res) => {
 
     for (const item of cart) {
 
-        const { vendorId } = await Product.findById(item.productId);
+        const { vendorId, stock } = await Product.findById(item.productId);
+
+        await Product.findByIdAndUpdate(
+            { _id: item.productId },
+            { stock: stock - item.quantity }
+        )
 
         var order = {
             vendorID: vendorId.toString(),
@@ -324,7 +340,6 @@ const submitOrder = async (req, res) => {
 
     for (const productOrder of productOrders) {
         const order = await Order.create(productOrder);
-
         orders.push(order)
     }
 
@@ -332,5 +347,182 @@ const submitOrder = async (req, res) => {
     res.status(StatusCodes.OK).json({ orders, ordersCount: orders.length })
 }
 
+const updateProfile = async (req, res) => {
+    try {
+        const { profileUrl, name, email } = req.body;
+        const { id } = req.params;
 
-export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview, submitOrder }
+        const user = {}
+
+        if (profileUrl) {
+            user.profileUrl = profileUrl
+        }
+
+        if (name) {
+            user.name = name
+        }
+
+        if (email) {
+            user.email = email
+        }
+
+        const updatedUser = await User.findOneAndUpdate({ _id: id }, user, { new: true })
+
+        if (!updatedUser) {
+            throw new NotFoundError(`No user with id: ${id}`);
+        }
+
+        res.status(StatusCodes.OK).json({ updatedUser })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+const createNotification = async (req, res) => {
+
+    const notification = await Notification.create(req.body);
+
+    res.status(StatusCodes.OK).json({
+        notification
+    })
+
+}
+
+const getNotifications = async (req, res) => {
+    const { userID } = req.query;
+
+    const notifications = await Notification.find({
+        userID
+    })
+
+    const count = await Notification.countDocuments({
+        userID
+    }).sort({ isRead: -1, createdAt: -1 })
+
+    res.status(StatusCodes.OK).json({
+        notifications,
+        count
+    })
+}
+
+const markNotificationAsRead = async (req, res) => {
+    const { id } = req.params;
+
+    const notification = Notification.findById(id);
+
+    if (!notification) {
+        throw new NotFoundError(`no notification with id ${id}`)
+    }
+
+    Notification.findByIdAndUpdate(id, {
+        isRead: true
+    })
+
+}
+
+const getVendorDetails = async (req, res) => {
+    const { vendorId, productId } = req.query;
+
+    var vendorID;
+
+    if (productId) {
+        const product = await Product.findById(productId);
+
+
+        if (!product) {
+            throw new NotFoundError(`no product with id ${productId}`);
+        }
+
+        vendorID = product.vendorId;
+    } else {
+        if (!vendorId) {
+            throw new BadRequestError(`provide vendor id or product id in the query`)
+        }
+        vendorID = vendorId
+    }
+
+    const vendor = {}
+
+    vendor.vendorInfo = await User.findById(vendorID);
+
+    if (!vendor.vendorInfo) {
+        throw new NotFoundError(`no vendor with id ${vendorID}`);
+    }
+
+    // calculate positive review  
+    const vendorProductList = await Product.find({ vendorId: vendorID })
+
+    vendor.popularProducts = await Product.aggregate([
+        {
+            $match: {
+                vendorId: new mongoose.Types.ObjectId(vendorID),
+            },
+        },
+        {
+            $lookup: {
+                from: "productreviews", // Assuming the collection name for ProductReview is "productreviews"
+                localField: "_id",
+                foreignField: "productID",
+                as: "reviews",
+            },
+        },
+        {
+            $addFields: {
+                reviewCount: { $size: "$reviews" },
+                totalRating: {
+                    $sum: "$reviews.rating",
+                },
+                averageRating: {
+                    $avg: "$reviews.rating",
+                },
+            },
+        },
+        {
+            $sort: {
+                totalRating: -1,
+                reviewCount: -1,
+            },
+        },
+        {
+            $limit: 5,
+        },
+    ]);
+
+    var vendorRating = 0;
+    var reviewCounts = 0;
+
+    vendor.reviews = []
+
+    for (const product of vendorProductList) {
+        const productReview = await ProductReview.find({ productID: product._id });
+        if (productReview !== [] && productReview) {
+
+            for (const review of productReview) {
+                vendorRating += review.rating;
+                reviewCounts++;
+
+                const customer = await User.findById(review.customerID)
+
+                vendor.reviews.push({
+                    productName: product.name,
+                    productImage: product.images[0],
+                    review,
+                    customer
+                })
+            }
+
+            // productReviews.push(productReview)
+        }
+    }
+
+    vendor.rating = vendorRating / (5 * reviewCounts) * 100;
+
+    res.status(StatusCodes.OK).json({
+        vendor
+    })
+}
+
+
+export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview, submitOrder, updateProfile, createNotification, getNotifications, getVendorDetails }

@@ -25,6 +25,7 @@ function UserHeaderMenu() {
                     <Avatar
                         size={'sm'}
                         name={user && user.name}
+                        src={user && (user.profileUrl === "" ? undefined : user.profileUrl)}
                     />
                 </MenuButton>
 
@@ -42,6 +43,7 @@ function UserHeaderMenu() {
                             <Avatar
                                 size={'2xl'}
                                 name={user && user.name}
+                                src={user && (user.profileUrl === "" ? undefined : user.profileUrl)}
                             />
                         </Center>
                         <br />

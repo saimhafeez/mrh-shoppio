@@ -50,6 +50,7 @@ import credit from '../../assets/images/credit.png'
 function Checkout() {
 
     const [currentForm, setCurrentForm] = useState(1)
+    const [isOrderProcessing, setIsOrderProcessing] = useState(false)
 
     const [cartProducts, setCartProducts] = useState({
         isLoading: true,
@@ -58,7 +59,7 @@ function Checkout() {
 
     const [cartTotal, setCartTotal] = useState(0)
 
-    const { cart, getSingleProduct, displayAlert, submitOrder, user } = useAppContext()
+    const { cart, getSingleProduct, displayAlert, submitOrder, user, clearCart, sendNotification } = useAppContext()
 
     const [placedOrders, setPlacedOrders] = useState({
         orders: null,
@@ -121,7 +122,8 @@ function Checkout() {
                 cartProducts,
                 cartTotal,
                 setCurrentForm,
-                handleSubmitOrder
+                handleSubmitOrder,
+                isOrderProcessing
             })
         } else if (currentForm === 3) {
             return successfulForm({ placedOrders, copyToClipboard })
@@ -146,11 +148,26 @@ function Checkout() {
     }
 
     const handleSubmitOrder = () => {
-        orderSubmission().then(({ orders, ordersCount }) => {
+        setIsOrderProcessing(true)
+        orderSubmission().then(async ({ orders, ordersCount }) => {
             setPlacedOrders({
                 orders,
                 ordersCount
             })
+            const notifications = [];
+
+            for (const order of orders) {
+
+                const { notification } = await sendNotification({
+                    userID: order.vendorID,
+                    title: 'Order Placed',
+                    message: `Order placed for !${order.shippingAddress.firstName + " " + order.shippingAddress.lastName}! & to be delivered in !${order.shippingAddress.city}!`
+                })
+                notifications.push(notification)
+            }
+            console.log(notifications)
+            clearCart();
+            setIsOrderProcessing(false)
             setCurrentForm(3)
             // const idArray = []
             // orders.map((order, indes) => {
@@ -350,7 +367,7 @@ const cartItem = ({ product, quantity, key, checkoutDetails, setCheckoutDetails 
     )
 }
 
-const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder }) => {
+const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder, isOrderProcessing }) => {
 
     return (
         <Card
@@ -477,11 +494,13 @@ const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder })
                     borderColor='brand_primary.300'
                     variant='outline'
                     onClick={handleSubmitOrder}
+                    isDisabled={isOrderProcessing}
                 >
                     {cartProducts.isLoading ? <CircularProgress isIndeterminate color='brand_primary.500' size='15px' />
                         : <HStack>
                             <Text fontSize='md'>Buy</Text>
                             <PriceComponent price={cartTotal.toFixed(2)} componentSize='md' />
+                            {isOrderProcessing && <CircularProgress isIndeterminate color='brand_primary.500' size='15px' />}
                         </HStack>
                     }
                 </Button>

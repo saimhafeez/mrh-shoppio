@@ -8,11 +8,19 @@ import {
     SliderMark,
     Skeleton,
     Thead,
-    Th
+    Th,
+    Link,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
 } from '@chakra-ui/react'
 import { useAppContext } from '../../../context/appContext'
 import { CreateProductHero } from '../../../components/vendor'
-import { LazyImage } from '../../../components'
+import { InputCompnent, LazyImage } from '../../../components'
 import { AiOutlineNumber } from 'react-icons/ai'
 
 
@@ -20,12 +28,12 @@ function Products() {
 
 
     const [products, setProducts] = useState([]);
-    const [totalProducts, setTotalProducts] = useState();
+    const [totalProducts, setTotalProducts] = useState(0);
     const [numOfPages, setNumOfPages] = useState();
     const [currentPage, setcurrentPage] = useState(1);
     const [sliderPage, setSliderPage] = useState(currentPage);
 
-    const { getProducts, isLoading, displayAlert } = useAppContext();
+    const { getProducts, isLoading, displayAlert, restockProduct, removeProduct } = useAppContext();
 
     const fetchProducts = async () => {
 
@@ -35,6 +43,12 @@ function Products() {
         setNumOfPages(numOfPages)
     }
 
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
+    const [selectedProduct, setSelectedProduct] = useState({
+        product: null,
+        restockQuantity: 0
+    })
 
     useEffect(() => {
 
@@ -42,6 +56,59 @@ function Products() {
         setSliderPage(currentPage)
 
     }, [currentPage])
+
+
+    const productRestock = () => {
+        new Promise(async (resolve, reject) => {
+            try {
+                const { updatedProduct } = await restockProduct(selectedProduct.product._id, selectedProduct.restockQuantity)
+                resolve(updatedProduct)
+            } catch (error) {
+                reject(error)
+            }
+        }).then((updatedProduct) => {
+            displayAlert({
+                alertStatus: 'success',
+                alertText: `'${updatedProduct.name}' restocked with additional ${selectedProduct.restockQuantity} items`
+            })
+            setSelectedProduct({
+                product: null,
+                restockQuantity: 0
+            })
+            fetchProducts();
+            onClose();
+
+        }).catch((error) => {
+            displayAlert({
+                alertStatus: 'error',
+                alertText: error
+            })
+        })
+    }
+
+    const productRemove = (id) => {
+        new Promise(async (resolve, reject) => {
+            try {
+                const { removedProduct } = await removeProduct(id)
+                resolve(removedProduct)
+            } catch (error) {
+                reject(error)
+            }
+        }).then((removedProduct) => {
+            displayAlert({
+                alertStatus: 'success',
+                alertText: `'${removedProduct.name}' removed`
+            })
+            fetchProducts();
+            onClose();
+
+        }).catch((error) => {
+            displayAlert({
+                alertStatus: 'error',
+                alertText: error
+            })
+        })
+    }
 
 
     return (
@@ -59,8 +126,8 @@ function Products() {
                         <Spinner />
                     </Center>
                 }
-
-                <TableContainer>
+                <Text fontWeight='bold' color='gray.400'>Total Products: {totalProducts}</Text>
+                <TableContainer w={{ base: 'full', lg: "calc(100vw - 350px)" }}>
                     <Table variant='simple'>
                         <Thead>
                             <Tr>
@@ -70,6 +137,7 @@ function Products() {
                                 <Th>Price</Th>
                                 <Th>Categories</Th>
                                 <Th>Tags</Th>
+                                <Th>Stock</Th>
                                 <Th>Action</Th>
                             </Tr>
                         </Thead>
@@ -126,9 +194,28 @@ function Products() {
                                             }
                                         </Td>
                                         <Td>
+                                            <Text>
+                                                {product.stock}
+                                            </Text>
+                                        </Td>
+                                        <Td>
                                             <Stack direction='row' spacing={5}>
-                                                <Button>Edit</Button>
-                                                <Button>Remove</Button>
+                                                <Button
+                                                    onClick={() => {
+                                                        setSelectedProduct(prev => ({
+                                                            ...prev,
+                                                            product: product
+                                                        }))
+                                                        onOpen();
+                                                    }}
+                                                >
+
+                                                    Re-stock</Button>
+                                                <Button
+                                                    onClick={() => productRemove(product._id)}
+                                                >
+                                                    Remove
+                                                </Button>
                                             </Stack>
                                         </Td>
                                     </Tr>
@@ -155,6 +242,7 @@ function Products() {
                             isDisabled={
                                 currentPage == 1 ? true : false
                             }
+                            display={{ base: 'none', lg: 'block' }}
                             variant={'outline'}
                             onClick={() => setcurrentPage(pre => pre - 1)}
                         >Previous</Button>
@@ -180,21 +268,52 @@ function Products() {
                             isDisabled={
                                 currentPage == numOfPages ? true : false
                             }
+                            display={{ base: 'none', lg: 'block' }}
                             variant={'outline'}
                             onClick={() => setcurrentPage(pre => pre + 1)}
                         >Next</Button>
-                        {/* <Slider
-                            defaultValue={1}
-                            value={currentPage}
-                        >
-                            <SliderTrack>
-                                <SliderFilledTrack />
-                            </SliderTrack>
-                            <SliderThumb>{currentPage}</SliderThumb>
-                        </Slider> */}
                     </Stack>}
                 </Stack>
             </Card>
+
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent mx={'2%'} w={'full'}>
+                    <ModalHeader>
+                        Restock '{selectedProduct.product && selectedProduct.product.name}'
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Stack direction='row' w='full'>
+                            <InputCompnent
+                                value={selectedProduct.restockQuantity}
+                                name="Quantity"
+                                w='full'
+                                handleChange={(e) => {
+                                    setSelectedProduct(prev => ({
+                                        ...prev,
+                                        restockQuantity: e.target.value
+                                    }))
+                                }} />
+                        </Stack>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button colorScheme='brand_primary' mr={3}
+                            onClick={productRestock}
+                        >
+                            Done
+                        </Button>
+                        <Button variant='ghost' onClick={() => {
+                            onClose()
+                            setSelectedProduct({
+                                product: null,
+                                restockQuantity: 0
+                            })
+                        }} >Close</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Box>
     )
 }

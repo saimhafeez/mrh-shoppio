@@ -31,6 +31,7 @@ import {
 
 } from "@chakra-ui/react"
 import { useAppContext } from '../../context/appContext';
+import { ReadFile } from '../../utils/ReadFile';
 
 function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) {
 
@@ -98,20 +99,20 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
 
 
 
-    const readImage = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const img = reader.result;
-                resolve(img);
-            };
-            reader.onerror = (error) => {
-                console.log("Error", error);
-                reject(error);
-            };
-            reader.readAsDataURL(file);
-        });
-    };
+    // const readImage = (file) => {
+    //     return new Promise((resolve, reject) => {
+    //         const reader = new FileReader();
+    //         reader.onload = () => {
+    //             const img = reader.result;
+    //             resolve(img);
+    //         };
+    //         reader.onerror = (error) => {
+    //             console.log("Error", error);
+    //             reject(error);
+    //         };
+    //         reader.readAsDataURL(file);
+    //     });
+    // };
 
     const handleImageSelection = async (e) => {
 
@@ -127,9 +128,10 @@ function CreateProductModal({ isOpen, onOpen, onClose, fetchProductsCallback }) 
 
             imagesFormData.append('file', file);
 
-            const img = await readImage(file)
+            ReadFile(file).then((img) => {
+                setImages(preList => [...preList, img])
+            }).catch((err) => console.log(err))
 
-            setImages(preList => [...preList, img])
 
             // var reader = new FileReader();
 

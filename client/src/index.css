@@ -86,6 +86,19 @@ code {
   text-orientation: upright !important;
 }
 
+.custom_scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* .custom_scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(128, 128, 128, 0.212);
+} */
+
+.custom_scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--chakra-colors-brand_secondary-200);
+  border-radius: 0px;
+}
+
 
 :root {
 

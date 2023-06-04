@@ -17,15 +17,22 @@ import { useAppContext } from '../context/appContext';
 import { useNavigate } from 'react-router-dom';
 
 const initialState = {
+    name: '',
+    shop: {
+        name: '',
+        address: '',
+        description: '',
+    },
     email: '',
     password: '',
     role: 'customer',
     rememberMe: true,
+    newMember: false
 }
 
 function Register() {
 
-    const { user, displayAlert, roleOptions, loginUser, isLoading } = useAppContext();
+    const { user, displayAlert, roleOptions, authenticateUser, isLoading } = useAppContext();
 
     const [values, setValues] = useState(initialState)
 
@@ -41,6 +48,30 @@ function Register() {
         if (e.target.name == 'checkbox') {
             setValues({ ...values, rememberMe: e.target.checked })
 
+        } else if (e.target.name == 'shop-name') {
+            setValues({
+                ...values,
+                shop: {
+                    ...values.shop,
+                    name: e.target.value
+                }
+            });
+        } else if (e.target.name == 'shop-address') {
+            setValues({
+                ...values,
+                shop: {
+                    ...values.shop,
+                    address: e.target.value
+                }
+            });
+        } else if (e.target.name == 'shop-description') {
+            setValues({
+                ...values,
+                shop: {
+                    ...values.shop,
+                    description: e.target.value
+                }
+            });
         } else {
 
             setValues({ ...values, [e.target.name]: e.target.value });
@@ -50,9 +81,9 @@ function Register() {
 
     const handleSubmit = () => {
 
-        const { email, password, role, rememberMe } = values;
+        const { email, password, role, rememberMe, newMember, name } = values;
 
-        if (!email || !password) {
+        if (!email || !password || (newMember && !name)) {
             displayAlert({
                 alertText: 'Provide all fields.',
                 alertStatus: 'error'
@@ -60,13 +91,9 @@ function Register() {
             return
         }
 
-        loginUser({
-            currentUser: { email, password, role, rememberMe }
+        authenticateUser({
+            _user: { ...values }
         })
-
-        console.log('submit');
-
-
     }
 
     const { getRootProps, getRadioProps } = useRadioGroup({
@@ -82,6 +109,8 @@ function Register() {
         if (user) {
             if (user.role == 'vendor') {
                 navigate('/vendor')
+            } else {
+                navigate('/shop')
             }
         }
     }, [user, navigate])
@@ -97,22 +126,26 @@ function Register() {
                     <CardBody>
                         <Stack spacing={4} w='full' maxW='md'>
                             <Heading fontSize={'2xl'}>
-                                Sign in to your account
+                                {values.newMember ? "Sign up for account" : "Sign in to your account"}
                             </Heading>
+
+                            {values.newMember && <FormRow
+                                name='name'
+                                type='text'
+                                handleChange={handleInputChange}
+                            />}
 
                             <FormRow
                                 name='email'
                                 type='text'
                                 label='email address'
                                 handleChange={handleInputChange}
-                                handleSubmit={handleSubmit}
                             />
 
                             <FormRow
                                 name='password'
                                 type='password'
                                 handleChange={handleInputChange}
-                                handleSubmit={handleSubmit}
                             />
 
                             <Stack {...group}>
@@ -147,6 +180,31 @@ function Register() {
 
                                 </Stack>
 
+                                {values.newMember && values.role === 'vendor' &&
+                                    <Stack
+                                        direction='column'
+                                    >
+                                        <FormRow
+                                            name='shop-name'
+                                            type='text'
+                                            label='Shop Name'
+                                            handleChange={handleInputChange}
+                                        />
+                                        <FormRow
+                                            name='shop-address'
+                                            type='text'
+                                            label='Shop Address'
+                                            handleChange={handleInputChange}
+                                        />
+                                        <FormRow
+                                            name='shop-description'
+                                            type='textarea'
+                                            label='Shop Description'
+                                            handleChange={handleInputChange}
+                                        />
+                                    </Stack>
+                                }
+
                                 <Button
                                     isLoading={isLoading}
                                     colorScheme='brand_primary' variant={isLoading ? 'outline' : 'solid'}
@@ -154,13 +212,16 @@ function Register() {
                                     onKeyDown={(key) => {
                                         console.log(key);
                                     }}>
-                                    Sign in
+                                    {values.newMember ? "Sign up" : "Sign in"}
                                 </Button>
                                 <Text
                                     align={'end'}
-                                >New User?&nbsp;
-                                    <Link color='brand_primary.500'>
-                                        Signup
+                                >{values.newMember ? "Existing User?" : "New User?"}&nbsp;
+                                    <Link onClick={() => setValues(prev => ({
+                                        ...prev,
+                                        newMember: !prev.newMember
+                                    }))} color='brand_primary.500'>
+                                        {values.newMember ? "Login" : "Signup"}
                                     </Link>
                                 </Text>
                             </Stack>

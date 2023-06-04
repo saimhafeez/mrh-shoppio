@@ -31,10 +31,13 @@ import {
     Card,
     Avatar,
     CircularProgress,
+    Progress,
+    Skeleton,
 
 } from '@chakra-ui/react'
 import { useAppContext } from '../../context/appContext'
 import { CreateProductReviewModal, PriceComponent } from '../../components/site'
+import { useNavigate } from 'react-router-dom'
 
 
 function ProductDetail() {
@@ -51,7 +54,13 @@ function ProductDetail() {
         reviewCount: null,
     });
 
-    const { getSingleProduct, cart, user, submitReview, getProductReviews, isInWishlist, addToWishList, removeFromWishList } = useAppContext()
+    const [productVendor, setProductVendor] = useState({
+        isLoading: true,
+        vendor: null,
+        rating: 0
+    })
+
+    const { getSingleProduct, cart, user, submitReview, getProductReviews, isInWishlist, addToWishList, removeFromWishList, getVendorDetails, displayAlert } = useAppContext()
 
     const [productInCart, setProductInCart] = useState(false)
     const [inWishList, setInWishlist] = useState(false);
@@ -92,22 +101,40 @@ function ProductDetail() {
         }
     }
 
+    const fectchVendorDetails = async (id) => {
+        new Promise(async (resolve, reject) => {
+            try {
+                const { vendor } = await getVendorDetails(`productId=${id}`);
+                resolve({ vendor })
+            } catch (error) {
+                reject(error)
+            }
+        }).then(({ vendor }) => {
+            console.log({ vendor });
+            setProductVendor({
+                isLoading: false,
+                vendor
+            })
+        }).catch((error) => {
+            displayAlert({
+                type: "error",
+                payload: error
+            })
+        })
+    }
+
     useEffect(() => {
         window.scrollTo(0, 0);
         fetchProduct().then((data) => {
-
             setShopProduct({
                 isLoading: false,
                 data: data
             })
-
             setCurrentActiveImage(data.images[0])
-
             setProductDescription({
                 isComplete: false,
                 des: data.description.slice(0, 400) + `${data.description.length > 400 ? "..... " : ''}`
             })
-
             fetchReviews()
             for (const item of cart) {
                 if (item.productId === data._id) {
@@ -116,12 +143,13 @@ function ProductDetail() {
                     break;
                 }
             }
+            fectchVendorDetails(data._id)
         }).catch((error) => {
-            console.log(error)
+            displayAlert({
+                type: "error",
+                payload: error
+            })
         })
-
-
-
     }, [])
 
     const [currentActiveImage, setCurrentActiveImage] = useState(null)
@@ -150,6 +178,8 @@ function ProductDetail() {
         productReview.isLoading = true;
         fetchReviews()
     }
+
+    const navigate = useNavigate()
 
     return (
 
@@ -278,11 +308,11 @@ function ProductDetail() {
                             >
                                 {`[ ${shopProduct.data.stock} in Stock ]`}
                             </Text>
-                            <Stack
+                            <Wrap
                                 mt={'5px'}
                                 direction={'row'}
                                 align={'center'}
-                                justify={'space-between'}
+                                justify={{ base: 'center', sm: 'space-between' }}
                             >
                                 <Stack
                                     direction={'row'}
@@ -332,7 +362,44 @@ function ProductDetail() {
                                         <AiOutlineHeart />
                                     </Button>
                                 </ButtonGroup>
-                            </Stack>
+                            </Wrap>
+                            <Skeleton
+                                isLoaded={!productVendor.isLoading}
+                            >
+                                <Wrap
+                                    w='full'
+                                    mt={5}
+                                    align='center'
+                                    justify={{ base: 'center', sm: 'space-between' }}
+                                >
+                                    <Wrap
+                                        align='center'
+                                    >
+                                        <Avatar
+                                            name={productVendor.vendor ? productVendor.vendor.vendorInfo.name : undefined}
+                                            src={productVendor.vendor ? productVendor.vendor.vendorInfo.image : undefined}
+                                        />
+                                        <Box>
+                                            <Text
+                                                fontWeight='bold'
+                                                color='gray.500'
+                                            >
+                                                Vendor's Rating
+                                            </Text>
+                                            <Progress
+                                                colorScheme='brand_primary'
+                                                value={productVendor.vendor && productVendor.vendor.rating}
+                                            />
+                                        </Box>
+                                    </Wrap>
+
+                                    <Button
+                                        justifySelf='end'
+                                        onClick={() => navigate(`/shop/vendor/${productVendor.vendor.vendorInfo._id}`)}
+                                    >Visit {productVendor.vendor && productVendor.vendor.vendorInfo.shop.name}
+                                    </Button>
+                                </Wrap>
+                            </Skeleton>
                         </Box>
                     </Stack >
 

@@ -4,35 +4,56 @@ import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken";
 
 
-const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please Provide Name'],
-        minlength: 3,
-        maxlength: 20,
-        trim: true
-    },
-    email: {
-        type: String,
-        required: [true, 'Please Provide Email'],
-        validate: {
-            validator: validator.isEmail,
-            message: 'Please Provide a Valid Email'
+const UserSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, 'Please Provide Name'],
+            minlength: 3,
+            maxlength: 20,
+            trim: true
         },
-        unique: true
+        email: {
+            type: String,
+            required: [true, 'Please Provide Email'],
+            validate: {
+                validator: validator.isEmail,
+                message: 'Please Provide a Valid Email'
+            },
+            unique: true
+        },
+        password: {
+            type: String,
+            required: [true, 'Please Provide Password'],
+            minlength: 6,
+            select: false
+        },
+        role: {
+            type: String,
+            enum: ['customer', 'vendor'],
+            default: 'customer',
+        },
+        profileUrl: {
+            type: String,
+            default: '',
+        },
+        shop: {
+            name: {
+                type: String,
+                default: '',
+            },
+            description: {
+                type: String,
+                default: '',
+            },
+            address: {
+                type: String,
+                default: '',
+            }
+        }
     },
-    password: {
-        type: String,
-        required: [true, 'Please Provide Password'],
-        minlength: 6,
-        select: false
-    },
-    role: {
-        type: String,
-        enum: ['customer', 'vendor'],
-        default: 'customer',
-    },
-})
+    { timestamps: true }
+)
 
 UserSchema.pre('save', async function () {
     if (!this.isModified('password')) {

@@ -14,6 +14,9 @@ import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import authenticateUser from './middleware/auth.js'
 import Product from "./models/Product.js";
+import User from "./models/User.js";
+import ProductReview from "./models/ProductReview.js";
+import mongoose from "mongoose";
 
 
 // import Product from "./models/Product.js";
@@ -52,6 +55,28 @@ const start = async () => {
     await connectDB(process.env.MONGO_URL)
     app.listen(port, () => {
       console.log(`server is listening on ${port}`);
+
+      // await User.updateMany({}, { $set: { profileUrl: "" } })
+      // console.log('update many')
+
+      // const updateProductReviewDocuments = async () => {
+      //   try {
+      //     const reviews = await ProductReview.find({});
+
+      //     for (const review of reviews) {
+      //       review.productID = new mongoose.Types.ObjectId(review.productID);
+      //       await review.save();
+      //     }
+
+      //     console.log("ProductReview documents updated successfully.");
+      //   } catch (error) {
+      //     console.error("Error updating ProductReview documents:", error);
+      //   }
+      // };
+
+      // // Call the function to update the documents
+      // updateProductReviewDocuments();
+
     })
   } catch (error) {
     console.log(error)

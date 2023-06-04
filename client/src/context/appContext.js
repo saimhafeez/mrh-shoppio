@@ -26,6 +26,10 @@ import {
     SUBMIT_ORDER_BEGIN,
     SUBMIT_ORDER_SUCCESS,
     SUBMIT_ORDER_ERROR,
+    UPDATE_USER_BEGIN,
+    UPDATE_USER_SUCCESS,
+    UPDATE_USER_ERROR,
+    CLEAR_CART,
 } from "./actions";
 
 import reducer from "./reducer";
@@ -187,27 +191,36 @@ const AppProvider = (({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cartProducts));
     }
 
+    const clearCart = () => {
+        localStorage.removeItem('cart');
+        dispatch({
+            type: CLEAR_CART
+        })
+    }
 
-    const loginUser = async ({ currentUser }) => {
+
+    const authenticateUser = async ({ _user }) => {
+        console.log(_user)
+
         dispatch({ type: USER_LOGIN_BEGIN });
+
         try {
 
-            const { data } = await axios.post('/api/v1/auth/login', currentUser);
+            const { data } = await axios.post(`/api/v1/auth/${_user.newMember ? "register" : "login"}`, _user);
 
-            const { user, token, rememberMe } = data;
+            const { user, token } = await data;
+
             dispatch({
                 type: USER_LOGIN_SUCCESS,
                 payload: {
                     user,
                     token,
-                    msg: 'login successful!'
+                    msg: `${user.newMember ? "user registered" : "login successful"}`
                 }
             })
 
-            console.log('rememberMe', rememberMe);
-
             // save to local storage if remember me is ticked
-            if (rememberMe) {
+            if (_user.rememberMe) {
                 addUserToLocalStorage({ user, token })
             }
 
@@ -215,8 +228,47 @@ const AppProvider = (({ children }) => {
             dispatch({
                 type: USER_LOGIN_ERROR,
                 payload: { msg: error.response.data.msg }
+                // payload: { msg: error.resopnse }
             })
+            console.log(error)
         }
+    }
+
+    const updateUser = async (user, id) => {
+        dispatch({
+            type: UPDATE_USER_BEGIN
+        })
+        const { profileUrl, name, email } = user;
+        new Promise(async (resolve, reject) => {
+            try {
+                const { data } = await axios.patch(`/api/v1/site/profile/${id}`, {
+                    profileUrl,
+                    name,
+                    email
+                })
+                const { updatedUser } = await data;
+                resolve(updatedUser)
+            } catch (error) {
+                reject(error)
+            }
+        }).then((updatedUser) => {
+            dispatch({
+                type: UPDATE_USER_SUCCESS,
+                payload: {
+                    profileUrl,
+                    name,
+                    email
+                }
+            })
+            localStorage.setItem('user', JSON.stringify(updatedUser))
+        }).catch((error) => {
+            dispatch({
+                type: UPDATE_USER_ERROR,
+                payload: {
+                    msg: error
+                }
+            })
+        })
     }
 
 
@@ -248,17 +300,23 @@ const AppProvider = (({ children }) => {
 
         } catch (error) {
             console.log(error);
-            logoutUser()
+            // logoutUser()
         }
     }
 
 
     const uploadImagesToServer = async (formData) => {
 
+        console.log('formData', formData)
+
         dispatch({ type: VENDOR_IMAGES_UPLOAD_BEGIN });
 
         try {
-            const data = await authFetch.post('vendor/uploadImage', formData)
+            const data = await authFetch.post('vendor/uploadImage', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
             dispatch({ type: VENDOR_IMAGES_UPLOAD_SUCCESS, payload: { msg: 'Images Uploaded!' } });
             return data;
         } catch (error) {
@@ -504,10 +562,10 @@ const AppProvider = (({ children }) => {
         }
     }
 
-    const getVendorOrders = async (vendorId) => {
+    const getVendorOrders = async (vendorId, sort, status) => {
         try {
 
-            const { data } = await authFetch(`/vendor/orders?vendorId=${vendorId}`)
+            const { data } = await authFetch(`/vendor/orders?vendorId=${vendorId}&sort=${sort}&status=${status}`)
 
             const { orders } = await data
 
@@ -535,12 +593,88 @@ const AppProvider = (({ children }) => {
         }
     }
 
+    const sendNotification = async (notificationDetails) => {
+        const { data } = await axios.post('/api/v1/site/notification', notificationDetails)
+        const { notification } = await data
+        return { notification };
+    }
+
+    const getNotifications = async (userID) => {
+        const { data } = await axios.get(`/api/v1/site/notification?userID=${userID}`);
+        const {
+            notifications,
+            count
+        } = await data
+        return {
+            notifications,
+            count
+        };
+    }
+
+    const getSaleStats = async (searchQuery) => {
+        const { data } = await authFetch(`vendor/stats/sales${searchQuery}`);
+
+        const { orders, totalSale } = await data;
+
+        return { orders, totalSale };
+    }
+
+    const getProductStats = async () => {
+        const { data } = await authFetch(`vendor/stats/products`);
+
+        const { productsCount, popularProduct } = await data;
+
+        return { productsCount, popularProduct };
+    }
+
+    const getReviewStats = async () => {
+        const { data } = await authFetch(`vendor/stats/reviews`);
+
+        const { reviews, count } = await data;
+
+        return { reviews, count };
+    }
+
+    const getGraphData = async (endPoint) => {
+        const { data } = await authFetch.get(`vendor/stats/graphdata/${endPoint}`)
+
+        const { graphData } = await data;
+
+        return { graphData }
+    }
+
+    const restockProduct = async (productId, restockQuantity) => {
+
+        const { data } = await authFetch.patch(`/vendor/product?id=${productId}&stock=${restockQuantity}`);
+
+        const { updatedProduct } = await data;
+        return { updatedProduct }
+
+    }
+
+    const removeProduct = async (productId) => {
+
+        const { data } = await authFetch.delete(`/vendor/product?id=${productId}`);
+
+        const { removedProduct } = await data;
+        return { removedProduct }
+
+    }
+
+    const getVendorDetails = async (queryUrl, includeAll = false) => {
+        const { data } = await axios.get(`/api/v1/site/vendor?${queryUrl}&includeAll=${includeAll}`);
+
+        const { vendor } = await data;
+
+        return { vendor }
+    }
+
     return <AppContext.Provider value={{
         ...state,
         displayAlert,
         logoutUser,
         clearAlert,
-        loginUser,
+        authenticateUser,
         createProduct,
         uploadImagesToServer,
         getProducts,
@@ -555,10 +689,21 @@ const AppProvider = (({ children }) => {
         removeFromWishList,
         isInWishlist,
         addCartToLocalStorage,
+        clearCart,
         removeCartFromLocalStorage,
         submitOrder,
         getVendorOrders,
         updateOrderStatus,
+        updateUser,
+        sendNotification,
+        getNotifications,
+        getSaleStats,
+        getProductStats,
+        getReviewStats,
+        getGraphData,
+        restockProduct,
+        removeProduct,
+        getVendorDetails
     }}>
         {children}
     </AppContext.Provider>

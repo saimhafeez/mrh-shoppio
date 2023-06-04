@@ -64,7 +64,8 @@ const brand_theme = extendTheme({
       light: "#f7fafc",
       // light: "#f0f4f8",
       dark: "#19202c",
-      white: "#ffffff"
+      white: "#ffffff",
+      vendorCover: "#FFE7A0"
     },
     brand_text: {
       light: "#486581",
