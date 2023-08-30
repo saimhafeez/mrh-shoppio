@@ -15,6 +15,7 @@ import { useAppContext } from '../../context/appContext';
 import { LazyImage } from '../../components';
 
 import { MdCancel } from 'react-icons/md'
+import { GrFormView } from 'react-icons/gr'
 
 function WishList() {
 
@@ -72,54 +73,30 @@ function WishList() {
                         <Spinner />
                     </Center> :
                     !wishlist.isLoading && wishlist.products.length === 0 ? <Text>Add Some Items to your wishlist and we will notify you once it becomes available</Text> :
-                        user && wishlist.products.length > 0 ? <Card
-                            // maxW={'1000px'}
-                            borderRadius={'none'}
-                            p={5}
-                        >
-                            <TableContainer minW={'50vw'}>
-                                <Table variant='simple'>
-                                    <Thead>
-                                        <Tr>
-                                            <Th>Image</Th>
-                                            <Th>Name</Th>
-                                            <Th> </Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {!wishlist.isLoading && wishlist.products.length > 0 && wishlist.products.map((product, index) => {
-                                            return (
-                                                <Tr key={index}>
+                        user && wishlist.products.length > 0 ? <Stack>
+                            {!wishlist.isLoading && wishlist.products.length > 0 && wishlist.products.map((product, index) => {
+                                return (
+                                    <Stack m={0} p={0} h='100px' borderRadius='10px' border='1px solid red' align='center' direction='row' key={index} justifyContent='space-between'>
 
-                                                    <Td>
-                                                        <LazyImage
-                                                            key={index}
-                                                            src={product.images[0]}
-                                                            minW={'100px'}
-                                                            maxW={'100px'}
-                                                            h={'full'}
-                                                            objectFit={'cover'}
-                                                        />
-
-                                                    </Td>
-                                                    <Td>
-                                                        <Text>{product.name}</Text>
-                                                    </Td>
-                                                    <Td>
-                                                        <MdCancel
-                                                            color='red'
-                                                            size={'20px'}
-                                                            cursor='pointer'
-                                                            onClick={() => remove(product._id)}
-                                                        />
-                                                    </Td>
-                                                </Tr>
-                                            )
-                                        })}
-                                    </Tbody>
-                                </Table>
-                            </TableContainer>
-                        </Card> : <Text>Please Login to view</Text>
+                                        <Stack align='center' direction='row'>
+                                            <LazyImage
+                                                key={index}
+                                                src={product.images[0]}
+                                                h={'100px'}
+                                                objectFit={'cover'}
+                                            />
+                                            <Text>{product.name}</Text>
+                                        </Stack>
+                                        <Center borderRightRadius='10px' bg='red' height='full' px='5px' onClick={() => remove(product._id)} cursor='pointer' >
+                                            <MdCancel
+                                                color='white'
+                                                size={'20px'}
+                                            />
+                                        </Center>
+                                    </Stack>
+                                )
+                            })}
+                        </Stack> : <Text>Please Login to view</Text>
                 }
             </Stack>
         </Center>

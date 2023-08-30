@@ -611,6 +611,12 @@ const AppProvider = (({ children }) => {
         };
     }
 
+    const markNotificationAsRead = async (notificationId) => {
+        const { data } = await axios.get(`/api/v1/site/notification/${notificationId}`)
+        const { msg } = await data
+        return { msg };
+    }
+
     const getSaleStats = async (searchQuery) => {
         const { data } = await authFetch(`vendor/stats/sales${searchQuery}`);
 
@@ -669,6 +675,29 @@ const AppProvider = (({ children }) => {
         return { vendor }
     }
 
+    const getCustomerOrders = async () => {
+        const { data } = await authFetch.get(`/customer/orders`);
+        const customerOrders = await data;
+
+        return customerOrders;
+    }
+
+    const trackOrder = async (id) => {
+        try {
+            const { data } = await axios.get(`/api/v1/site/track-order?id=${id}`);
+            const order = await data;
+            return order;
+        } catch (error) {
+            // displayAlert('error', 'Invalid Tracking Id');
+            dispatch(
+                {
+                    type: SHOW_ALERT,
+                    payload: { alertText: 'Invalid Tracking Id', alertStatus: 'error' }
+                }
+            );
+        }
+    }
+
     return <AppContext.Provider value={{
         ...state,
         displayAlert,
@@ -703,7 +732,9 @@ const AppProvider = (({ children }) => {
         getGraphData,
         restockProduct,
         removeProduct,
-        getVendorDetails
+        getVendorDetails,
+        getCustomerOrders,
+        trackOrder
     }}>
         {children}
     </AppContext.Provider>

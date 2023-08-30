@@ -160,25 +160,15 @@ function Register() {
                             </Stack>
 
                             <Stack spacing={6}>
-                                <Stack
-                                    direction={{ base: 'column', sm: 'row' }}
-                                    justify={'space-between'}
-                                    align='start'
+                                <Checkbox
+                                    name='checkbox'
+                                    type='checkbox'
+                                    onChange={handleInputChange}
+                                    colorScheme='brand_primary'
+                                    defaultChecked={values.rememberMe}
                                 >
-
-                                    <Checkbox
-                                        name='checkbox'
-                                        type='checkbox'
-                                        onChange={handleInputChange}
-                                        colorScheme='brand_primary'
-                                        defaultChecked={values.rememberMe}
-                                    >
-                                        Remember Me
-                                    </Checkbox>
-
-                                    <Link color={'brand_primary.500'}>Forgot Password?</Link>
-
-                                </Stack>
+                                    Remember Me
+                                </Checkbox>
 
                                 {values.newMember && values.role === 'vendor' &&
                                     <Stack

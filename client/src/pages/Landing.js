@@ -47,15 +47,29 @@ function Landing() {
                         Welcome to our one-stop e-commerce platform. Shop conveniently from a wide range of vendors, create a personalized profile, and enjoy secure payments. As a vendor, expand your business and reach a wider audience. Discover your new favorites today!
                     </Text>
 
-                    <Button
-                        variant={'solid'}
-                        colorScheme='brand_primary'
-                        maxW={'14em'}
-                        alignSelf={{ sm: 'center', lg: 'start' }}
-                        onClick={() => navigate('/register')}
-                    >
-                        Login or Register
-                    </Button>
+                    <Stack>
+                        <Button
+                            variant={'solid'}
+                            colorScheme='brand_primary'
+                            w='100%'
+                            maxW={'14em'}
+                            alignSelf={{ sm: 'center', lg: 'start' }}
+                            onClick={() => navigate('/register')}
+                        >
+                            Login or Register
+                        </Button>
+
+                        <Button
+                            variant={'solid'}
+                            colorScheme='brand_secondary'
+                            w='100%'
+                            maxW={'14em'}
+                            alignSelf={{ sm: 'center', lg: 'start' }}
+                            onClick={() => navigate('/shop')}
+                        >
+                            Browse Shop
+                        </Button>
+                    </Stack>
 
                 </Stack>
 

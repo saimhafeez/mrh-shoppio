@@ -1,9 +1,9 @@
 import { Stack, Box, SimpleGrid, Grid, GridItem } from '@chakra-ui/react'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { Header, Sidebar } from '../../../components'
+import { Header } from '../../../components'
 
-function SharedLayout() {
+function SharedLayout({ Sidebar }) {
     return (
         <Stack>
             <Header />
@@ -20,7 +20,7 @@ function SharedLayout() {
                     display={{ base: 'none', lg: 'block' }}
                     overflow={'auto'}
                 >
-                    <Sidebar />
+                    {Sidebar}
                 </Box>
 
                 <Box h='full' w={'full'}>
@@ -28,12 +28,6 @@ function SharedLayout() {
                 </Box>
             </Stack>
 
-            {/* <SimpleGrid
-                columns={{ base: 1, lg: 2 }}
-                spacing={0}
-                h={'calc(100vh - var(--nav-height))'}
-            >
-            </SimpleGrid> */}
         </Stack >
     )
 }

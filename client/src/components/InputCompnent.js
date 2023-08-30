@@ -19,6 +19,7 @@ function InputCompnent({ name, value, w = "auto", minW = "auto", handleChange, p
                 px={2}
                 bg='gray.200'
                 h='full'
+                minH='40px'
                 textAlign='center'
                 display='flex'
                 alignItems='center'

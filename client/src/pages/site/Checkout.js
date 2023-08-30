@@ -123,7 +123,9 @@ function Checkout() {
                 cartTotal,
                 setCurrentForm,
                 handleSubmitOrder,
-                isOrderProcessing
+                isOrderProcessing,
+                setCheckoutDetails,
+                checkoutDetails
             })
         } else if (currentForm === 3) {
             return successfulForm({ placedOrders, copyToClipboard })
@@ -367,7 +369,17 @@ const cartItem = ({ product, quantity, key, checkoutDetails, setCheckoutDetails 
     )
 }
 
-const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder, isOrderProcessing }) => {
+const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder, isOrderProcessing, setCheckoutDetails, checkoutDetails }) => {
+
+    const handleForm = (e) => {
+        setCheckoutDetails(prev => ({
+            ...prev,
+            card: {
+                ...prev.card,
+                [e.target.name]: e.target.value
+            }
+        }))
+    }
 
     return (
         <Card
@@ -429,14 +441,14 @@ const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder, i
                                 direction={'column'}
                             >
                                 <Text>Name</Text>
-                                <Input type='number' bg='white' />
+                                <Input name='name' onChange={handleForm} value={checkoutDetails.card.name} type='text' bg='white' />
                             </Stack>
 
                             <Stack
                                 direction={'column'}
                             >
                                 <Text>Card Number</Text>
-                                <Input type='number' bg='white' />
+                                <Input name='number' onChange={handleForm} value={checkoutDetails.card.number} type='number' bg='white' />
                             </Stack>
 
                             <Stack
@@ -463,7 +475,7 @@ const formTwo = ({ setCurrentForm, cartProducts, cartTotal, handleSubmitOrder, i
                                     w={'50%'}
                                 >
                                     <Text>CVV</Text>
-                                    <Input type='number' bg='white' />
+                                    <Input name='cvv' onChange={handleForm} value={checkoutDetails.card.cvv} type='number' bg='white' />
                                 </Stack>
                             </Stack>
                         </Stack>

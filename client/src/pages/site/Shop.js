@@ -140,17 +140,9 @@ function Shop() {
                 <DrawerContent>
                     <DrawerCloseButton />
                     <DrawerHeader>Filter Products</DrawerHeader>
-
                     <DrawerBody>
                         {SidebarContent()}
                     </DrawerBody>
-
-                    <DrawerFooter>
-                        <Button variant='outline' mr={3} onClick={onClose}>
-                            Cancel
-                        </Button>
-                        <Button colorScheme='blue'>Save</Button>
-                    </DrawerFooter>
                 </DrawerContent>
             </Drawer>
         )
@@ -294,6 +286,7 @@ function Shop() {
                         // bg={'red'}
                         display={{ base: 'none', xl: 'block' }}
                         p={2}
+                        borderRight='1px solid #FAF0E6'
                     >
                         {SidebarContent()}
 
@@ -327,28 +320,30 @@ function Shop() {
                             </Button>
                         </Stack>
 
-                        <Wrap
-                            justify={'center'}
-                            w={'full'}
-                            spacing={5}
-                            p={5}
-                        >
-                            {products.isLoading ? <Center h={'100vh'}><Spinner /></Center> :
-                                products.products.map((product, index) => {
-                                    return <ProductCard
-                                        key={index}
-                                        name={product.name}
-                                        categories={product.categories}
-                                        price={product.price}
-                                        imageList={product.images}
-                                        description={product.description}
-                                        productID={product._id}
-                                        stock={product.stock}
-                                    />
-                                })
-                            }
-                            {!products.isLoading && products.products.length === 0 && <Center h={'100vh'}><Text>No Products Found!</Text></Center>}
-                        </Wrap>
+                        <Center>
+                            <Wrap
+                                justify={{ base: 'center', md: 'start' }}
+                                // w={'full'}
+                                spacing={5}
+                                p={5}
+                            >
+                                {products.isLoading ? <Center h={'100vh'}><Spinner /></Center> :
+                                    products.products.map((product, index) => {
+                                        return <ProductCard
+                                            key={index}
+                                            name={product.name}
+                                            categories={product.categories}
+                                            price={product.price}
+                                            imageList={product.images}
+                                            description={product.description}
+                                            productID={product._id}
+                                            stock={product.stock}
+                                        />
+                                    })
+                                }
+                                {!products.isLoading && products.products.length === 0 && <Center h={'100vh'}><Text>No Products Found!</Text></Center>}
+                            </Wrap>
+                        </Center>
                     </Box>
                 </Stack>
             </Box >

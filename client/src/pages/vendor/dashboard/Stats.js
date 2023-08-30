@@ -6,7 +6,6 @@ import {
     StatNumber,
     StatHelpText,
     StatArrow,
-    StatGroup,
     Stack,
     Card,
     Box,
@@ -17,17 +16,11 @@ import {
     Center,
     Skeleton,
     Badge,
-    Flex,
     Heading,
-    Menu,
-    MenuButton,
-    MenuList,
     Accordion,
     AccordionPanel,
     AccordionItem,
     AccordionButton,
-    Button,
-    Input,
     Checkbox
 } from '@chakra-ui/react'
 
@@ -36,6 +29,7 @@ import { RiStarSmileFill } from 'react-icons/ri'
 import { useAppContext } from '../../../context/appContext'
 import { PriceComponent } from '../../../components/site';
 import { StatsGraph } from '../../../components/vendor'
+import { BiNotification } from 'react-icons/bi'
 
 function Stats() {
 
@@ -70,7 +64,8 @@ function Stats() {
     const [notifications, setNotification] = useState({
         isLoading: true,
         list: null,
-        count: 0
+        count: 0,
+        showReadOnly: false
     })
 
     const fetchSales = () => {
@@ -181,11 +176,12 @@ function Stats() {
 
         fetchNotifications().then(({ notifications, count }) => {
 
-            setNotification({
+            setNotification(prev => ({
+                ...prev,
                 isLoading: false,
                 list: notifications,
                 count
-            })
+            }))
 
             console.log({ notifications, count })
 
@@ -260,12 +256,19 @@ function Stats() {
             m={2}
             borderRadius='12px'
         >
-            <Accordion allowToggle border={'transparent'} w='full'>
+            <Accordion onClick={() => {
+                if (notification.isRead) {
+                    // TODO: CALL NOTIFICATION STATUS UPDATE
+                }
+            }} allowToggle border={'transparent'} w='full'>
                 <AccordionItem>
                     <AccordionButton>
-                        <Text color={'brand_secondary.500'} fontWeight='bold'>
-                            {notification.title}
-                        </Text>
+                        <Wrap align='center' color='brand_secondary.500'>
+                            {!notification.isRead && <BiNotification />}
+                            <Text color={'brand_secondary.500'} fontWeight='bold'>
+                                {notification.title}
+                            </Text>
+                        </Wrap>
                     </AccordionButton>
                     <AccordionPanel>
                         <Text>{result}</Text>
@@ -281,8 +284,7 @@ function Stats() {
                         </Text>
                     </AccordionPanel>
 
-                    <Button variant='ghost' >Mark as Read</Button>
-                    <p>{notification.isRead.toString()}</p>
+                    {/* <p>{notification.isRead.toString()}</p> */}
 
                 </AccordionItem>
             </Accordion>
@@ -474,6 +476,7 @@ function Stats() {
                 w='100%'
                 direction={{ base: 'column', lg: 'row' }}
                 pb={5}
+                align='center'
             >
                 <Box w='full' >
                     <StatsGraph />
@@ -490,10 +493,15 @@ function Stats() {
                         borderRadius='10px'
                     >
                         <Box bg='brand_primary.500' w='full' borderTopRadius='10px' >
-                            <Heading textAlign='center' color='white' py={1} fontSize='2xl'>Notifications</Heading>
+                            <Heading textAlign='center' color='white' py={1} fontSize='xl'>Notifications</Heading>
                         </Box>
 
-                        <Checkbox alignSelf='start' p={1}>Hide Already Read</Checkbox>
+                        <Checkbox onChange={(e) => {
+                            setNotification(prev => ({
+                                ...prev,
+                                showReadOnly: e.target.checked
+                            }))
+                        }} alignSelf='start' p={1}>Show Unread Only</Checkbox>
                         <Stack
                             overflow='auto'
                             h='300px'
@@ -501,21 +509,17 @@ function Stats() {
                             p={1}
                             className='custom_scrollbar'
                         >
-                            {/* <Badge
-                                position='absolute'
-                                bottom={7}
-                                left={5}
-                            // colorScheme='brand_primary'
-                            >
-                                {notifications.isLoading ? <CircularProgress size='12px' isIndeterminate color='brand_primary.500' /> : notifications.count}
-                            </Badge> */}
                             {notifications.isLoading ? <Center>
                                 <CircularProgress size='12px' isIndeterminate color='brand_primary.500' />
                             </Center> :
-                                notifications.list.map((notification, index) => {
-                                    if (!notification.isRead) {
-                                        return notificationComponent(notification)
+                                notifications.list.filter((notification) => {
+                                    if (notifications.showReadOnly) {
+                                        return !notification.isRead && notification;
+                                    } else {
+                                        return notification;
                                     }
+                                }).map((notification, index) => {
+                                    return notificationComponent(notification)
                                 })
                             }
                         </Stack>

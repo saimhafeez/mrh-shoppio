@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import WishList from "../models/WishList.js";
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 const getWishList = async (req, res) => {
     const { customerId } = req.query
@@ -57,4 +58,40 @@ const isInWishlist = async (req, res) => {
     })
 }
 
-export { getWishList, addToWishList, removeFromWishList, isInWishlist }
+const getCustomerOrders = async (req, res) => {
+    const { userId } = req.user;
+
+    const orders = await Order.find({
+        customerID: userId
+    });
+
+    var customerOrders = [];
+
+    for (const order of orders) {
+
+        const prdts = [];
+
+        for (const product of order.products) {
+            const prdt = await Product.findById(product.productID);
+
+            prdts.push({
+                product: prdt,
+                quantity: product.quantity
+            })
+        }
+
+        customerOrders.push({
+            _id: order._id,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+            status: order.status,
+            shippingAddress: order.shippingAddress,
+            products: prdts
+        })
+
+    }
+
+    res.status(StatusCodes.OK).json(customerOrders)
+}
+
+export { getWishList, addToWishList, removeFromWishList, isInWishlist, getCustomerOrders }

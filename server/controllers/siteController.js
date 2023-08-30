@@ -420,6 +420,10 @@ const markNotificationAsRead = async (req, res) => {
         isRead: true
     })
 
+    res.status(StatusCodes.OK).json({
+        msg: 'notification marked'
+    })
+
 }
 
 const getVendorDetails = async (req, res) => {
@@ -524,5 +528,32 @@ const getVendorDetails = async (req, res) => {
     })
 }
 
+const trackOrder = async (req, res) => {
+    const { id } = req.query;
 
-export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview, submitOrder, updateProfile, createNotification, getNotifications, getVendorDetails }
+    const order = await Order.findById(id);
+
+    const prdts = [];
+    for (const product of order.products) {
+        const prdt = await Product.findById(product.productID);
+
+        prdts.push({
+            product: prdt,
+            quantity: product.quantity
+        })
+    }
+
+    res.status(StatusCodes.OK).json({
+        order: {
+            _id: order._id,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+            status: order.status,
+            shippingAddress: order.shippingAddress,
+            products: prdts
+        }
+    })
+}
+
+
+export { getProducts, getSingleProduct, getCategories, getTags, getProductReviews, addProductReview, submitOrder, updateProfile, createNotification, getNotifications, markNotificationAsRead, getVendorDetails, trackOrder }

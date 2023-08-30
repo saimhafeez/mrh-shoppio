@@ -58,12 +58,12 @@ function UserHeaderMenu() {
 
                                 if (user.role === 'vendor') {
                                     navigate('/vendor')
-                                } else if (user.role === 'vendor') {
-                                    navigate('/customer')
+                                } else if (user.role === 'customer') {
+                                    navigate('/shop/myorders')
                                 }
                             }}
                         >
-                            Dashboard
+                            {user ? user.role === 'vendor' ? 'Dashboard' : 'My Orders' : 'Dashboard'}
                         </MenuItem>
 
                         <MenuItem

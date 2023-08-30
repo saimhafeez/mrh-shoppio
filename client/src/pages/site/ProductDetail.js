@@ -7,27 +7,12 @@ import {
     Wrap,
     Center,
     Stack,
-    Badge,
-    Drawer,
-    DrawerBody,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerOverlay,
-    DrawerContent,
-    DrawerCloseButton,
     useDisclosure,
     Button,
     Text,
     ButtonGroup,
-    Divider,
-    Spinner,
-    Checkbox,
-    CheckboxGroup,
-    Tooltip,
-    Flex,
     Image,
     Heading,
-    Container,
     Card,
     Avatar,
     CircularProgress,
@@ -60,7 +45,7 @@ function ProductDetail() {
         rating: 0
     })
 
-    const { getSingleProduct, cart, user, submitReview, getProductReviews, isInWishlist, addToWishList, removeFromWishList, getVendorDetails, displayAlert } = useAppContext()
+    const { getSingleProduct, cart, user, submitReview, getProductReviews, isInWishlist, addToWishList, removeFromWishList, getVendorDetails, displayAlert, getWishList } = useAppContext()
 
     const [productInCart, setProductInCart] = useState(false)
     const [inWishList, setInWishlist] = useState(false);
@@ -91,14 +76,14 @@ function ProductDetail() {
         console.log({ productReviews, reviewCount })
     }
 
-    const handleWishList = async () => {
-        setInWishlist(!inWishList)
+    const handleWishList = (inWishList) => {
 
         if (inWishList) {
-            const data = await removeFromWishList(shopProduct.data.productID)
+            removeFromWishList(shopProduct.data._id)
         } else {
-            const data = await addToWishList(shopProduct.data.productID)
+            addToWishList(shopProduct.data._id)
         }
+        setInWishlist(!inWishList)
     }
 
     const fectchVendorDetails = async (id) => {
@@ -144,6 +129,26 @@ function ProductDetail() {
                 }
             }
             fectchVendorDetails(data._id)
+            new Promise(async (resolve, reject) => {
+                try {
+                    if (user) {
+                        const { products, count } = await getWishList();
+                        resolve(products)
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            }).then((products) => {
+                console.log('wishlist', products);
+                for (var product of products) {
+                    console.log('single product', product);
+                    if (product._id === data._id) {
+                        setInWishlist(true)
+                    }
+                }
+            }).catch((err) => {
+                console.log(err);
+            })
         }).catch((error) => {
             displayAlert({
                 type: "error",
@@ -152,17 +157,50 @@ function ProductDetail() {
         })
     }, [])
 
+    useEffect(() => {
+        setProductInCart(false)
+        for (const item of cart) {
+            if (shopProduct.data && item.productId === shopProduct.data._id) {
+                console.log('product in cart')
+                setProductInCart(true);
+                break;
+            }
+        }
+    }, [cart])
+
     const [currentActiveImage, setCurrentActiveImage] = useState(null)
 
     const [productDescription, setProductDescription] = useState('')
-
-    const [quantity, setQuantity] = useState(1)
 
     const handleReadMore = () => {
         setProductDescription({
             isComplete: true,
             des: shopProduct.data.description
         })
+    }
+
+    const [productQuantity, setProductQuantity] = useState(1)
+
+    const { addCartToLocalStorage, removeCartFromLocalStorage } = useAppContext()
+
+    const increaseProductQuantity = () => {
+
+        if (productQuantity >= shopProduct.data.stock) {
+            displayAlert({
+                alertStatus: 'info',
+                alertText: 'Quantity exceedes the Stock'
+            })
+        } else {
+            setProductQuantity(productQuantity + 1)
+        }
+
+    }
+
+    const decreaseProductQuantity = () => {
+
+        if (productQuantity !== 1) {
+            setProductQuantity(productQuantity - 1)
+        }
     }
 
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -327,6 +365,7 @@ function ProductDetail() {
                                         px={4}
                                         borderRight={'1px solid var(--chakra-colors-brand_primary-500)'}
                                         cursor={'pointer'}
+                                        onClick={decreaseProductQuantity}
                                     >
                                         <AiOutlineMinus />
                                     </Box>
@@ -335,13 +374,14 @@ function ProductDetail() {
                                         px={10}
                                         fontSize={'lg'}
                                     >
-                                        {quantity}
+                                        {productQuantity}
                                     </Box>
                                     <Box
                                         p={2}
                                         px={4}
                                         borderLeft={'1px solid var(--chakra-colors-brand_primary-500)'}
                                         cursor={'pointer'}
+                                        onClick={increaseProductQuantity}
                                     >
                                         <AiOutlinePlus />
                                     </Box>
@@ -352,14 +392,25 @@ function ProductDetail() {
                                         colorScheme='brand_primary'
                                         borderRadius={'10px'}
                                         isDisabled={productInCart || shopProduct.data.stock === 0}
+                                        onClick={
+                                            () => {
+                                                addCartToLocalStorage({
+                                                    productId: shopProduct.data._id,
+                                                    quantity: productQuantity
+                                                }, cart)
+                                                setProductInCart(true);
+                                            }
+                                        }
                                     >
                                         {productInCart ? 'ADDED' : shopProduct.data.stock === 0 ? 'SOLD-OUT' : 'ADD TO CART'}
                                     </Button>
                                     <Button
                                         colorScheme='brand_primary'
                                         borderRadius={'10px'}
+                                        onClick={() => handleWishList(inWishList)}
+                                        isDisabled={!user || user.role != 'customer'}
                                     >
-                                        <AiOutlineHeart />
+                                        {inWishList ? <AiFillHeart /> : <AiOutlineHeart />}
                                     </Button>
                                 </ButtonGroup>
                             </Wrap>

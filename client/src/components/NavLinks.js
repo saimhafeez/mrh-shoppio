@@ -1,9 +1,16 @@
 import React, { useState } from 'react'
-import links from '../utils/links'
 import { NavLink } from 'react-router-dom'
 import { Box, Stack, Image, CheckboxGroup, Heading } from '@chakra-ui/react'
+import { useAppContext } from '../context/appContext'
+
+import vendorSidebarLinks from '../utils/links'
+import userSidebarLinks from '../utils/user_sidebar_links'
 
 function NavLinks({ toggleSidebar }) {
+
+    const { user } = useAppContext();
+
+    const links = user.role === 'customer' ? userSidebarLinks : vendorSidebarLinks
 
     return (
         <div>
