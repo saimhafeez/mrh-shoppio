@@ -501,7 +501,7 @@ const getVendorDetails = async (req, res) => {
 
     for (const product of vendorProductList) {
         const productReview = await ProductReview.find({ productID: product._id });
-        if (productReview !== [] && productReview) {
+        if (productReview.length !== 0 && productReview) {
 
             for (const review of productReview) {
                 vendorRating += review.rating;

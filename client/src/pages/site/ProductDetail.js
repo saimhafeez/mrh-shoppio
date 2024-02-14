@@ -249,6 +249,9 @@ function ProductDetail() {
                             {currentActiveImage && <Image
                                 src={currentActiveImage}
                                 maxW={{ base: '100%', xl: '650px' }}
+                                border='1px solid'
+                                borderColor='brand_secondary.100'
+                                borderRadius='10px'
                             />
                             }
 
@@ -267,7 +270,6 @@ function ProductDetail() {
                                         borderColor={
                                             src == currentActiveImage ? 'var(--chakra-colors-brand_primary-500)' : 'white'
                                         }
-
                                         cursor={'pointer'}
                                     >
                                         <Image

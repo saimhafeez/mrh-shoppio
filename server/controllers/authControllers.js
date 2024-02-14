@@ -42,6 +42,9 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email, role }).select('+password');
+    // const user = await User.findOne({ email, role })
+
+    console.log('--> ---> ', user);
 
     if (!user) {
         console.log('user not found');
