@@ -7,6 +7,15 @@
   <img alt="Node.js" src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white">
 </p>
 
+![Axios](https://img.shields.io/badge/axios-671ddf?&style=for-the-badge&logo=axios&logoColor=white
+) ![Chakra UI](https://img.shields.io/badge/Chakra--UI-319795?style=for-the-badge&logo=chakra-ui&logoColor=white
+) ![Framer Motion](https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=blue
+) ![React Router DOM](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white
+) ![Styled Components](https://img.shields.io/badge/styled--components-DB7093?style=for-the-badge&logo=styled-components&logoColor=white
+) ![AWS](https://img.shields.io/badge/Amazon_AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white
+) ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white
+)
+
 
 Shoppio is a full-featured e-commerce platform that empowers both customers and vendors. Customers can conveniently browse and purchase products from a wide range of vendors, personalize their profiles, and enjoy secure payments. Vendors can expand their reach, manage their products and orders, and track performance effortlessly.
 
@@ -63,6 +72,36 @@ The server-side code is structured as follows:
 - **server/routers:** Routes for authentication and different user roles.
 - **server/.env:** Environment variables for the server.
 - **server/server.js:** Main entry point for the server.
+
+## Technologies Used 🤖
+
+### Client
+
+- **Chakra UI**: A simple, modular component library for React applications.
+- **Emotion**: A popular CSS-in-JS library.
+- **Fontsource**: Provides self-hosted fonts for better performance.
+- **Axios**: A promise-based HTTP client for making API requests.
+- **Framer Motion**: A library for creating smooth animations.
+- **React Icons**: Icons library for React.
+- **React Router DOM**: Declarative routing for React.js.
+- **Recharts**: A charting library for React based on D3.
+- **Styled Components**: A CSS-in-JS library for styling React components.
+- **UUID**: A library for generating unique identifiers.
+- **Web Vitals**: Metrics for measuring the performance of web pages.
+
+### Server
+
+- **Mongoose**: An ODM (Object Data Modeling) library for MongoDB and Node.js.
+- **AWS SDK for S3**: A software development kit for Amazon Simple Storage Service.
+- **Bcrypt.js**: A library for hashing and salting passwords.
+- **Dotenv**: A zero-dependency module for loading environment variables.
+- **Jsonwebtoken**: A library for generating JSON Web Tokens (JWT).
+- **Mime Types**: A library for mapping file extensions to MIME types.
+- **Morgan**: A HTTP request logger middleware for Node.js.
+- **Multiparty**: A streamable form-data parser for Node.js.
+- **Validator**: A library for string validation and sanitization.
+- **Concurrently**: A utility to run multiple commands concurrently.
+- **Nodemon**: A tool to automatically restart the server on file changes.
 
 ## Screenshots
 
