@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "build": "npm install",
+    "build-client": "cd .. && cd client && npm run build",
     "start-server": "nodemon server",
     "server": "nodemon server --ignore client",
     "client": "cd.. & npm start --prefix client",

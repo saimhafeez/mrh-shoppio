@@ -17,6 +17,7 @@ import Product from "./models/Product.js";
 import User from "./models/User.js";
 import ProductReview from "./models/ProductReview.js";
 import mongoose from "mongoose";
+import { dirname } from 'path'
 
 
 // import Product from "./models/Product.js";
@@ -29,6 +30,13 @@ dotenv.config()
 
 const port = process.env.PORT || 5000;
 
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'))
+}
+
+// for production
+const __dirname = dirname(fileURLToPath(import.meta.url))
+app.use(express.static(path.resolve(__dirname, '../client/build')))
 
 app.use(express.json())
 
